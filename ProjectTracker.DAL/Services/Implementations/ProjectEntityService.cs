@@ -15,7 +15,7 @@ namespace ProjectTracker.DAL.Services.Implementations
         {
             using (var db = new ProjectTrackerContext())
             {
-                return db.Projects.ToList();
+                return db.Projects.AsNoTracking().ToList();
             }
         }
 
@@ -47,5 +47,6 @@ namespace ProjectTracker.DAL.Services.Implementations
                 db.SaveChanges();
             }
         }
+
     }
 }

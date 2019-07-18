@@ -27,7 +27,7 @@
 
             <Button DockPanel.Dock="Bottom"
                     Content="Create new project" 
-                    Margin="10"
+                    Margin="10" Padding="3"
                     HorizontalAlignment="Left"
                     Command="{Binding CreateProjectCommand}"/>
 
@@ -35,7 +35,9 @@
                 <Border BorderThickness="1" BorderBrush="Black" CornerRadius="3"
                         Margin="10 0 10 0">
                     <ListView x:Name="lvProjects" ItemsSource="{Binding Projects}"
-                              SelectedItem="{Binding SelectedProject}">
+                              SelectedItem="{Binding SelectedProject}"
+                              BorderThickness="0" Background="Transparent"
+                              MouseDown="LvProjects_MouseDown">
 
                         <ListView.Resources>
                             <ContextMenu x:Key="ItemContextMenu">
@@ -59,7 +61,7 @@
                         
                         <ListView.ItemTemplate>
                             <DataTemplate x:Name="projectItem">
-                                <TextBlock Text="{Binding Title}"/>
+                                <TextBlock Text="{Binding Title}" Margin="0 3"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
 
@@ -67,7 +69,7 @@
                             <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                 <i:InvokeCommandAction Command="{Binding MouseLeftButtonDownCommand}"/>
                             </i:EventTrigger>
-                            <i:EventTrigger EventName="PreviewMouseRigtButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseRightButtonDown">
                                 <i:InvokeCommandAction Command="{Binding MouseRightButtonDownCommand}"/>
                             </i:EventTrigger>
                             <i:EventTrigger EventName="MouseDoubleClick">
@@ -79,7 +81,16 @@
                 </Border>
                 <Label Content="Loading..." 
                        VerticalAlignment="Center" HorizontalAlignment="Center"
-                       Visibility="{Binding IsLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                       Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding IsListEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button Content="+" FontSize="20"
+                            Margin="5" Padding="0 -5 0 0"
+                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                            Command="{Binding CreateProjectCommand}"/>
+                    <Label Content="Create new project" VerticalAlignment="Center"/>
+                </StackPanel>
             </Grid>
 
         </DockPanel>

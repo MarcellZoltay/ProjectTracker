@@ -12,8 +12,8 @@ namespace ProjectTracker.DAL
     public class ProjectTrackerContext : DbContext
     {
         public DbSet<ProjectEntity> Projects { get; set; }
+        public DbSet<TodoEntity> Todos { get; set; }
 
         public ProjectTrackerContext() : base ("ProjectTrackerDB") { }
-
     }
 }

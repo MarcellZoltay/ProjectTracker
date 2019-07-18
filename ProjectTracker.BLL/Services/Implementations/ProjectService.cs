@@ -14,10 +14,13 @@ namespace ProjectTracker.BLL.Services.Implementations
     public class ProjectService : IProjectService, IModelEntityMapper<Project, ProjectEntity>
     {
         private IProjectEntityService projectEntityService;
+        private ITodoService todoService;
 
-        public ProjectService()
+        public ProjectService(ITodoService todoService)
         {
             projectEntityService = UnityBootstrapper.Instance.Resolve<IProjectEntityService>();
+
+            this.todoService = todoService;
         }
 
         public List<Project> GetProjects()
@@ -58,8 +61,9 @@ namespace ProjectTracker.BLL.Services.Implementations
 
         public void DeleteProject(Project project)
         {
-            var projectEntity = ConvertToEntity(project);
+            todoService.DeleteTodosByProjectId(project.Id);
 
+            var projectEntity = ConvertToEntity(project);
             projectEntityService.DeleteProject(projectEntity);
         }
         public async Task DeleteProjectAsync(Project project)

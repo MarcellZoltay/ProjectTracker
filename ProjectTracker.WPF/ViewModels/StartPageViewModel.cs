@@ -27,9 +27,10 @@ namespace ProjectTracker.WPF.ViewModels
         public DelegateCommand MouseLeftButtonDownCommand { get; }
         public DelegateCommand MouseRightButtonDownCommand { get; }
 
-
         private IProjectService projectService;
+
         public ObservableCollection<Project> Projects { get; }
+        private bool[] projectsHasOpened;
 
         private Project selectedProject;
         public Project SelectedProject
@@ -41,13 +42,19 @@ namespace ProjectTracker.WPF.ViewModels
 
         private bool leftMouseButtonClicked;
 
-        private bool isLoaded = true;
-        public bool IsLoaded
+        private bool isLoading = true;
+        public bool IsLoading
         {
-            get { return isLoaded; }
-            set { SetProperty(ref isLoaded, value); }
+            get { return isLoading; }
+            set { SetProperty(ref isLoading, value); }
         }
 
+        private bool isListEmpty;
+        public bool IsListEmtpy
+        {
+            get { return isListEmpty; }
+            set { SetProperty(ref isListEmpty, value); }
+        }
 
         public StartPageViewModel(IRegionManager regionManager, IProjectService projectService)
         {
@@ -69,10 +76,14 @@ namespace ProjectTracker.WPF.ViewModels
             {
                 var projects = projectService.GetProjects();
 
+                projectsHasOpened = new bool[projects.Count];
+
                 currentDispatcher.Invoke(new Action(() =>
                 {
                     Projects.AddRange(projects);
-                    IsLoaded = false;
+
+                    IsLoading = false;
+                    IsListEmtpy = Projects.Count == 0;
                 }));
             });
         }
@@ -84,6 +95,8 @@ namespace ProjectTracker.WPF.ViewModels
             if (dialogViewModel.ShowDialog() == true)
             {
                 var project = projectService.CreateProject(dialogViewModel.ProjectTitle);
+
+                IsListEmtpy = false;
                 Projects.Add(project);
             }
 
@@ -94,7 +107,22 @@ namespace ProjectTracker.WPF.ViewModels
             if (leftMouseButtonClicked && project != null)
             {
                 var navigationParameters = new NavigationParameters();
-                navigationParameters.Add("projectTitle", project.Title);
+                navigationParameters.Add("project", project);
+
+                bool projectHasOpened;
+                int index = Projects.IndexOf(project);
+                
+                if(index >= projectsHasOpened.Count())
+                {
+                    projectHasOpened = true;
+                }
+                else
+                {
+                    projectHasOpened = projectsHasOpened[index];
+                    projectsHasOpened[index] = true;
+                }
+
+                navigationParameters.Add("projectHasOpened", projectHasOpened);
 
                 regionManager.RequestNavigate("MainRegion", "ProjectPage", navigationParameters);
 
@@ -107,6 +135,7 @@ namespace ProjectTracker.WPF.ViewModels
             if (dialogViewModel.ShowDialog() == true)
             {
                 project.Title = dialogViewModel.ProjectTitle;
+
                 await projectService.UpdateProjectAsync(project);
             }
 
@@ -119,6 +148,8 @@ namespace ProjectTracker.WPF.ViewModels
             if(result == MessageBoxResult.OK)
             {
                 Projects.Remove(project);
+                IsListEmtpy = Projects.Count == 0;
+            
                 await projectService.DeleteProjectAsync(project);
             }
 

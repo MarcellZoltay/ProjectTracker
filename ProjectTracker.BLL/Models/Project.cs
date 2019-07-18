@@ -17,9 +17,27 @@ namespace ProjectTracker.BLL.Models
             set { SetProperty(ref title, value); }
         }
 
+        public List<Todo> Todos { get; }
+
         public Project(string title)
         {
             Title = title;
+
+            Todos = new List<Todo>();
+        }
+
+        public void AddTodo(Todo todo)
+        {
+            Todos.Add(todo);
+        }
+        public void AddTodoRange(IEnumerable<Todo> todos)
+        {
+            Todos.AddRange(todos);
+        }
+
+        public void RemoveTodo(Todo todo)
+        {
+            Todos.Remove(todo);
         }
     }
 

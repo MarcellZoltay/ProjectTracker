@@ -1,23 +1,169 @@
 ﻿<UserControl x:Class="ProjectTracker.WPF.Views.ProjectPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converter="clr-namespace:StatisticMaker.WPF.Converters"
              xmlns:prism="http://prismlibrary.com/"             
              prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <UserControl.Resources>
+        <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" MinHeight="50" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
 
-        <Border BorderThickness="0 1" BorderBrush="Black">
+        <Border Grid.ColumnSpan="2" 
+                BorderThickness="0 1" BorderBrush="Black">
             <StackPanel Orientation="Horizontal">
                 <Button Content="Back" Command="{Binding BackToStartPageClickCommand}" 
                         Width="50" Height="25"
                         Margin="10"/>
-                <Label Content="{Binding ProjectTitle}" 
-                       FontSize="20" FontWeight="SemiBold"
+                <Label Content="{Binding Project.Title, NotifyOnSourceUpdated=True}" FontSize="20" FontWeight="SemiBold"
                        VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
+
+        <Grid Grid.Row="1"
+              Margin="15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Label HorizontalAlignment="Left"
+                   Content="TODOs" FontSize="22" FontWeight="SemiBold"
+                   VerticalAlignment="Center"
+                   Margin="5 0"/>
+            <Button Grid.Column="1" 
+                    HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Content="+" FontSize="20"
+                    Margin="10 0" Padding="0 -5 0 0"
+                    Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                    Command="{Binding AddTodoCommand}"/>
+
+            <Border Grid.Row="1" Grid.ColumnSpan="2"
+                    BorderThickness="1" BorderBrush="Black" CornerRadius="3"
+                    Margin="10 0 10 10">
+                <TreeView x:Name="tvTodos"
+                          ItemsSource="{Binding TodoTreeViewItems}"
+                          BorderThickness="0" Background="Transparent"
+                          MouseDown="TvTodos_MouseDown">
+
+                    <TreeView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Add todo"
+                                      Command="{Binding AddTodoCommand}"/>
+                        </ContextMenu>
+                    </TreeView.ContextMenu>
+
+                    <TreeView.Resources>
+                        <ContextMenu x:Key="ItemContextMenu">
+                            <MenuItem Header="In progress"
+                                      IsCheckable="True" 
+                                      IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem.Todo.IsInProgress}"
+                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.IsInProgressClickedCommand}" 
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                            <Separator/>
+                            <MenuItem Header="Add todo"
+                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.AddTodoCommand}" 
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                            <MenuItem Header="Edit"
+                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.EditTodoCommand}" 
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                            <Separator/>
+                            <MenuItem Header="Delete"
+                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.DeleteTodoCommand}" 
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                        </ContextMenu>
+
+                        <Style TargetType="{x:Type TextBlock}" x:Key="todoProgressStyle">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Todo.IsDone}" Value="true">
+                                    <Setter Property="Foreground">
+                                        <Setter.Value>
+                                            <SolidColorBrush Color="Green"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Todo.IsInProgress}" Value="true">
+                                    <Setter Property="Foreground">
+                                        <Setter.Value>
+                                            <SolidColorBrush Color="Orange"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TreeView.Resources>
+
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0 3" Height="20">
+                                <CheckBox IsChecked="{Binding Todo.IsDone}"
+                                          Margin="0 0 5 0"
+                                          VerticalAlignment="Center"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.IsDoneClickedCommand}" 
+                                          CommandParameter="{Binding Todo}"/>
+                                <TextBlock VerticalAlignment="Center" Style="{StaticResource todoProgressStyle}">
+                                    <Run Text="{Binding Todo.Text}" />
+                                    <Run>
+                                        <Run.Style>
+                                            <Style TargetType="Run">
+                                                <Style.Setters>
+                                                    <Setter Property="Text" Value=" - "/>
+                                                </Style.Setters>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Todo.Deadline}" Value="{x:Null}">
+                                                        <Setter Property="Text" Value=""/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Run.Style>
+                                    </Run>
+                                    <Run Text="{Binding Todo.Deadline, StringFormat=yyyy.MM.dd.}"
+                                         TextDecorations="Underline"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}" >
+                            <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    
+                </TreeView>
+            </Border>
+
+            <Label Grid.Row="1" Grid.ColumnSpan="2"
+                   Content="Loading..." 
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Visibility="{Binding IsListEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Button Content="+" FontSize="20"
+                        Margin="5" Padding="0 -5 0 0"
+                        Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                        Command="{Binding AddTodoCommand}"/>
+                <Label Content="Add todo" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

@@ -49,12 +49,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\ProjectEntity.cs" />
+    <Compile Include="Entities\TodoEntity.cs" />
+    <Compile Include="Migrations\201906161340323_InitialCreate.cs" />
+    <Compile Include="Migrations\201906161340323_InitialCreate.Designer.cs">
+      <DependentUpon>201906161340323_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201907172005207_TodoEntityCreated.cs" />
+    <Compile Include="Migrations\201907172005207_TodoEntityCreated.Designer.cs">
+      <DependentUpon>201907172005207_TodoEntityCreated.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ProjectTrackerContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Implementations\ProjectEntityService.cs" />
+    <Compile Include="Services\Implementations\TodoEntityService.cs" />
     <Compile Include="Services\Interfaces\IProjectEntityService.cs" />
+    <Compile Include="Services\Interfaces\ITodoEntityService.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201906161340323_InitialCreate.resx">
+      <DependentUpon>201906161340323_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201907172005207_TodoEntityCreated.resx">
+      <DependentUpon>201907172005207_TodoEntityCreated.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />

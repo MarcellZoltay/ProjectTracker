@@ -24,6 +24,7 @@ namespace ProjectTracker.WPF
             containerRegistry.RegisterForNavigation<ProjectPage, ProjectPageViewModel>();
 
             containerRegistry.RegisterSingleton<IProjectService, ProjectService>();
+            containerRegistry.RegisterSingleton<ITodoService, TodoService>();
         }
     }
 }

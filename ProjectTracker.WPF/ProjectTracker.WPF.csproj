@@ -57,11 +57,18 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="HelperClasses\TodoHelper.cs" />
+    <Compile Include="HelperClasses\TodoTreeViewItem.cs" />
+    <Compile Include="HelperClasses\TodoTreeViewItemHelper.cs" />
     <Compile Include="ViewModels\DialogViewModels\ProjectDialogViewModel.cs" />
+    <Compile Include="ViewModels\DialogViewModels\TodoDialogViewModel.cs" />
     <Compile Include="ViewModels\ProjectPageViewModel.cs" />
     <Compile Include="ViewModels\StartPageViewModel.cs" />
     <Compile Include="Views\Dialogs\ProjectDialog.xaml.cs">
       <DependentUpon>ProjectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Dialogs\TodoDialog.xaml.cs">
+      <DependentUpon>TodoDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ProjectPage.xaml.cs">
       <DependentUpon>ProjectPage.xaml</DependentUpon>
@@ -70,6 +77,10 @@
       <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\Dialogs\ProjectDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Dialogs\TodoDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

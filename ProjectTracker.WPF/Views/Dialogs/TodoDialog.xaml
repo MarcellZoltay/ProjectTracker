@@ -1,0 +1,60 @@
+﻿<Window x:Class="ProjectTracker.WPF.Views.Dialogs.TodoDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProjectTracker.WPF.Views.Dialogs"
+        mc:Ignorable="d"
+        Title="Todo Dialog" 
+        Height="270" Width="300" MinHeight="250" MinWidth="300"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="60" />
+            <Setter Property="Margin" Value="5 0" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel FocusManager.FocusedElement="{Binding ElementName=tbText}">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="10">
+            <Button Content="{Binding ButtonContent}"
+                    Command="{Binding AddSaveCommand}"/>
+            <Button Content="Cancel" 
+                    Command="{Binding CancelCommand}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical"
+                    Margin="20">
+            <TextBlock Text="{Binding Title}"
+                       HorizontalAlignment="Center"/>
+            
+            <Label Content="Text" />
+            <TextBox x:Name="tbText"
+                     Text="{Binding Text}"/>
+            
+            <Label Content="Deadline" 
+                   Margin="0 10 0 0"/>
+            <DatePicker SelectedDate="{Binding Deadline}"
+                        FirstDayOfWeek="Monday">
+                <DatePicker.Style>
+                    <Style TargetType="DatePicker">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Deadline}" Value="{x:Null}">
+                                <Setter Property="Text" Value=""/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DatePicker.Style>
+            </DatePicker>
+            <Button Content="Remove deadline"
+                    Width="100" Margin="0 5 0 0"
+                    HorizontalAlignment="Left"
+                    Command="{Binding RemoveDeadlineCommand}" />
+        </StackPanel>
+    </DockPanel>
+    
+</Window>

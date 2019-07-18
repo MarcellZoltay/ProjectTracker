@@ -1,4 +1,6 @@
-﻿using ProjectTracker.DAL.Services.Implementations;
+﻿using ProjectTracker.BLL.Services.Implementations;
+using ProjectTracker.BLL.Services.Interfaces;
+using ProjectTracker.DAL.Services.Implementations;
 using ProjectTracker.DAL.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -31,6 +33,9 @@ namespace StatisticMaker.BLL
         private void ConfigureDependencies()
         {
             container.RegisterType<IProjectEntityService, ProjectEntityService>();
+            container.RegisterType<ITodoEntityService, TodoEntityService>();
+
+            container.RegisterType<ITodoService, TodoService>();
         }
 
         public T Resolve<T>()
