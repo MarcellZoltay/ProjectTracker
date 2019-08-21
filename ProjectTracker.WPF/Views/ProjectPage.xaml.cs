@@ -34,8 +34,26 @@ namespace ProjectTracker.WPF.Views
                 TreeViewItem item = (TreeViewItem)element;
 
                 ((TodoTreeViewItem)item.DataContext).IsSelected = true;
+
+                e.Handled = true;
             }
         }
-        
+
+        private void MainGrid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.Handled)
+                return;
+
+            var selectedItem = (TodoTreeViewItem)tvTodos.SelectedItem;
+            if (selectedItem != null)
+            {
+                selectedItem.IsSelected = false;
+            }
+
+            lvWebpageLinks.UnselectAll();
+            lvFiles.UnselectAll();
+            lvFolders.UnselectAll();
+            lvApps.UnselectAll();
+        }
     }
 }

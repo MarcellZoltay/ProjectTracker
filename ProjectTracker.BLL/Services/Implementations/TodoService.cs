@@ -2,7 +2,6 @@
 using ProjectTracker.BLL.Services.Interfaces;
 using ProjectTracker.DAL.Entities;
 using ProjectTracker.DAL.Services.Interfaces;
-using StatisticMaker.BLL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +19,10 @@ namespace ProjectTracker.BLL.Services.Implementations
             todoEntityService = UnityBootstrapper.Instance.Resolve<ITodoEntityService>();
         }
 
-        public List<Todo> GetTodos(int projectId)
+        public List<Todo> GetTodosByProjectId(int projectId)
         {
             List<Todo> todos = new List<Todo>();
-            var todoEntities = todoEntityService.GetProjects(projectId);
+            var todoEntities = todoEntityService.GetTodosByProjectId(projectId);
 
             foreach (var item in todoEntities)
             {
@@ -61,26 +60,26 @@ namespace ProjectTracker.BLL.Services.Implementations
             return todo;
         }
 
-        public void UpdateTodo(Todo todo)
+        public void UpdateTodo(Todo todoToUpdate)
         {
-            var todoEntity = ConvertToEntity(todo);
+            var todoEntity = ConvertToEntity(todoToUpdate);
 
             todoEntityService.UpdateTodo(todoEntity);
         }
-        public async Task UpdateTodoAsync(Todo todo)
+        public async Task UpdateTodoAsync(Todo todoToUpdate)
         {
-            await Task.Run(() => UpdateTodo(todo));
+            await Task.Run(() => UpdateTodo(todoToUpdate));
         }
 
-        public void DeleteTodo(Todo todo)
+        public void DeleteTodo(Todo todoToDelete)
         {
-            var todoEntity = ConvertToEntity(todo);
+            var todoEntity = ConvertToEntity(todoToDelete);
 
             todoEntityService.DeleteTodo(todoEntity);
         }
-        public async Task DeleteTodoAsync(Todo todo)
+        public async Task DeleteTodoAsync(Todo todoToDelete)
         {
-            await Task.Run(() => DeleteTodo(todo));
+            await Task.Run(() => DeleteTodo(todoToDelete));
         }
 
         public void DeleteTodosByProjectId(int projectId)
@@ -101,7 +100,7 @@ namespace ProjectTracker.BLL.Services.Implementations
         }
         public TodoEntity ConvertToEntity(Todo model)
         {
-            return new TodoEntity
+            return new TodoEntity()
             {
                 Id = model.Id,
                 Text = model.Text,

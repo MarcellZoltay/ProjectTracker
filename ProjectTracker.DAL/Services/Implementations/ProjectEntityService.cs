@@ -19,31 +19,31 @@ namespace ProjectTracker.DAL.Services.Implementations
             }
         }
 
-        public int AddProject(ProjectEntity projectEntity)
+        public int AddProject(ProjectEntity project)
         {
             using (var db = new ProjectTrackerContext())
             {
-                db.Projects.Add(projectEntity);
+                db.Projects.Add(project);
                 db.SaveChanges();
             }
 
-            return projectEntity.Id;
+            return project.Id;
         }
 
-        public void UpdateProject(ProjectEntity projectEntityToUpdate)
+        public void UpdateProject(ProjectEntity projectToUpdate)
         {
             using (var db = new ProjectTrackerContext())
             {
-                db.Entry(projectEntityToUpdate).State = EntityState.Modified;
+                db.Entry(projectToUpdate).State = EntityState.Modified;
                 db.SaveChanges();
             }
         }
 
-        public void DeleteProject(ProjectEntity projectEntityToDelete)
+        public void DeleteProject(ProjectEntity projectToDelete)
         {
             using (var db = new ProjectTrackerContext())
             {
-                db.Entry(projectEntityToDelete).State = EntityState.Deleted;
+                db.Entry(projectToDelete).State = EntityState.Deleted;
                 db.SaveChanges();
             }
         }

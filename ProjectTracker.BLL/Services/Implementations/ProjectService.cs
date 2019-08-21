@@ -2,7 +2,6 @@
 using ProjectTracker.BLL.Services.Interfaces;
 using ProjectTracker.DAL.Entities;
 using ProjectTracker.DAL.Services.Interfaces;
-using StatisticMaker.BLL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +14,13 @@ namespace ProjectTracker.BLL.Services.Implementations
     {
         private IProjectEntityService projectEntityService;
         private ITodoService todoService;
+        private IPathService pathService;
 
-        public ProjectService(ITodoService todoService)
+        public ProjectService()
         {
             projectEntityService = UnityBootstrapper.Instance.Resolve<IProjectEntityService>();
-
-            this.todoService = todoService;
+            todoService = UnityBootstrapper.Instance.Resolve<ITodoService>();
+            pathService = UnityBootstrapper.Instance.Resolve<IPathService>();
         }
 
         public List<Project> GetProjects()
@@ -48,27 +48,28 @@ namespace ProjectTracker.BLL.Services.Implementations
             return project;
         }
 
-        public void UpdateProject(Project project)
+        public void UpdateProject(Project projectToUpdate)
         {
-            var projectEntity = ConvertToEntity(project);
+            var projectEntity = ConvertToEntity(projectToUpdate);
 
             projectEntityService.UpdateProject(projectEntity);
         }
-        public async Task UpdateProjectAsync(Project project)
+        public async Task UpdateProjectAsync(Project projectToUpdate)
         {
-            await Task.Run(() => UpdateProject(project));
+            await Task.Run(() => UpdateProject(projectToUpdate));
         }
 
-        public void DeleteProject(Project project)
+        public void DeleteProject(Project projectToDelete)
         {
-            todoService.DeleteTodosByProjectId(project.Id);
+            todoService.DeleteTodosByProjectId(projectToDelete.Id);
+            pathService.DeletePathsByProjectId(projectToDelete.Id);
 
-            var projectEntity = ConvertToEntity(project);
+            var projectEntity = ConvertToEntity(projectToDelete);
             projectEntityService.DeleteProject(projectEntity);
         }
-        public async Task DeleteProjectAsync(Project project)
+        public async Task DeleteProjectAsync(Project projectToDelete)
         {
-            await Task.Run(() => DeleteProject(project));
+            await Task.Run(() => DeleteProject(projectToDelete));
         }
         
 
@@ -81,7 +82,7 @@ namespace ProjectTracker.BLL.Services.Implementations
         }
         public ProjectEntity ConvertToEntity(Project model)
         {
-            return new ProjectEntity
+            return new ProjectEntity()
             {
                 Id = model.Id,
                 Title = model.Title

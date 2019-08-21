@@ -16,6 +16,11 @@
         </Style>
     </Window.Resources>
 
+    <Window.InputBindings>
+        <KeyBinding Key="Return" Command="{Binding AddSaveCommand}"/>
+        <KeyBinding Key="Esc" Command="{Binding CancelCommand}"/>
+    </Window.InputBindings>
+
     <DockPanel FocusManager.FocusedElement="{Binding ElementName=tbText}">
         <StackPanel DockPanel.Dock="Bottom"
                     Orientation="Horizontal"
@@ -34,7 +39,7 @@
             
             <Label Content="Text" />
             <TextBox x:Name="tbText"
-                     Text="{Binding Text}"/>
+                     Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"/>
             
             <Label Content="Deadline" 
                    Margin="0 10 0 0"/>

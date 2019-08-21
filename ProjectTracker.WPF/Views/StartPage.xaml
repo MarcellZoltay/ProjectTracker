@@ -66,12 +66,6 @@
                         </ListView.ItemTemplate>
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                <i:InvokeCommandAction Command="{Binding MouseLeftButtonDownCommand}"/>
-                            </i:EventTrigger>
-                            <i:EventTrigger EventName="PreviewMouseRightButtonDown">
-                                <i:InvokeCommandAction Command="{Binding MouseRightButtonDownCommand}"/>
-                            </i:EventTrigger>
                             <i:EventTrigger EventName="MouseDoubleClick">
                                 <i:InvokeCommandAction Command="{Binding OpenProjectCommand}"
                                                        CommandParameter="{Binding ElementName=lvProjects, Path=SelectedItem}"/>

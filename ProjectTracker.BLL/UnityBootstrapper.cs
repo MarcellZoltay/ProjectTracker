@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity;
 
-namespace StatisticMaker.BLL
+namespace ProjectTracker.BLL
 {
     public class UnityBootstrapper
     {
@@ -34,8 +34,10 @@ namespace StatisticMaker.BLL
         {
             container.RegisterType<IProjectEntityService, ProjectEntityService>();
             container.RegisterType<ITodoEntityService, TodoEntityService>();
+            container.RegisterType<IPathEntityService, PathEntityService>();
 
             container.RegisterType<ITodoService, TodoService>();
+            container.RegisterType<IPathService, PathService>();
         }
 
         public T Resolve<T>()

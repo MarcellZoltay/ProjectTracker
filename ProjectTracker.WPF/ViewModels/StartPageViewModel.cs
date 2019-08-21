@@ -24,8 +24,6 @@ namespace ProjectTracker.WPF.ViewModels
         public DelegateCommand<Project> OpenProjectCommand { get; }
         public DelegateCommand<Project> RenameProjectCommand { get; }
         public DelegateCommand<Project> DeleteProjectCommand { get; }
-        public DelegateCommand MouseLeftButtonDownCommand { get; }
-        public DelegateCommand MouseRightButtonDownCommand { get; }
 
         private IProjectService projectService;
 
@@ -39,8 +37,6 @@ namespace ProjectTracker.WPF.ViewModels
             set { SetProperty(ref selectedProject, value); }
         }
 
-
-        private bool leftMouseButtonClicked;
 
         private bool isLoading = true;
         public bool IsLoading
@@ -64,8 +60,6 @@ namespace ProjectTracker.WPF.ViewModels
             OpenProjectCommand = new DelegateCommand<Project>(OpenProject);
             RenameProjectCommand = new DelegateCommand<Project>(RenameProject);
             DeleteProjectCommand = new DelegateCommand<Project>(DeleteProject);
-            MouseLeftButtonDownCommand = new DelegateCommand(MouseLeftButtonDown);
-            MouseRightButtonDownCommand = new DelegateCommand(MouseRightButtonDown);
 
             Projects = new ObservableCollection<Project>();
 
@@ -74,17 +68,33 @@ namespace ProjectTracker.WPF.ViewModels
             var currentDispatcher = Dispatcher.CurrentDispatcher;
             Task.Run(() =>
             {
-                var projects = projectService.GetProjects();
-
-                projectsHasOpened = new bool[projects.Count];
-
-                currentDispatcher.Invoke(new Action(() =>
+                Exception e = null;
+                MessageBoxResult result = MessageBoxResult.None;
+                do
                 {
-                    Projects.AddRange(projects);
+                    try
+                    {
+                        var projects = projectService.GetProjects();
 
-                    IsLoading = false;
-                    IsListEmtpy = Projects.Count == 0;
-                }));
+                        projectsHasOpened = new bool[projects.Count];
+
+                        currentDispatcher.Invoke(new Action(() =>
+                        {
+                            Projects.AddRange(projects);
+
+                            IsLoading = false;
+                            IsListEmtpy = Projects.Count == 0;
+                        }));
+
+                        e = null;
+                    }
+                    catch (Exception exception)
+                    {
+                        e = exception;
+                        result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+                    }
+                }
+                while (e != null && result == MessageBoxResult.OK);
             });
         }
 
@@ -104,7 +114,7 @@ namespace ProjectTracker.WPF.ViewModels
         }
         private void OpenProject(Project project)
         {
-            if (leftMouseButtonClicked && project != null)
+            if (project != null)
             {
                 var navigationParameters = new NavigationParameters();
                 navigationParameters.Add("project", project);
@@ -154,15 +164,6 @@ namespace ProjectTracker.WPF.ViewModels
             }
 
             SelectedProject = null;
-        }
-
-        private void MouseLeftButtonDown()
-        {
-            leftMouseButtonClicked = true;
-        }
-        private void MouseRightButtonDown()
-        {
-            leftMouseButtonClicked = false;
         }
 
     }
