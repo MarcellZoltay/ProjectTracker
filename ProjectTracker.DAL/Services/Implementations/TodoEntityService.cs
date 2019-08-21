@@ -11,7 +11,7 @@ namespace ProjectTracker.DAL.Services.Implementations
 {
     public class TodoEntityService : ITodoEntityService
     {
-        public List<TodoEntity> GetProjects(int projectId)
+        public List<TodoEntity> GetTodosByProjectId(int projectId)
         {
             var todos = new List<TodoEntity>();
 
@@ -31,67 +31,67 @@ namespace ProjectTracker.DAL.Services.Implementations
 
             return todos;
         }
-        private void LoadChlidrenTodoEntities(ProjectTrackerContext db, TodoEntity todoEntity)
+        private void LoadChlidrenTodoEntities(ProjectTrackerContext db, TodoEntity todo)
         {
-            var todoEntities = (from t in db.Todos.Include("Project").Include("ParentTodo").AsNoTracking()
-                                where t.ParentTodoID == todoEntity.Id
-                                select t).ToList();
+            var todos = (from t in db.Todos.Include("Project").Include("ParentTodo").AsNoTracking()
+                         where t.ParentTodoID == todo.Id
+                         select t).ToList();
 
-            todoEntity.Children.Clear();
-            todoEntity.Children.AddRange(todoEntities);
+            todo.Children.Clear();
+            todo.Children.AddRange(todos);
 
-            foreach (var item in todoEntities)
+            foreach (var item in todos)
             {
                 LoadChlidrenTodoEntities(db, item);
             }
         }
 
-        public int AddTodo(TodoEntity todoEntity)
+        public int AddTodo(TodoEntity todo)
         {
             using (var db = new ProjectTrackerContext())
             {
-                db.Todos.Add(todoEntity);
+                db.Todos.Add(todo);
                 db.SaveChanges();
             }
 
-            return todoEntity.Id;
+            return todo.Id;
         }
 
-        public void UpdateTodo(TodoEntity todoEntityToUpdate)
+        public void UpdateTodo(TodoEntity todoToUpdate)
         {
             using (var db = new ProjectTrackerContext())
             {
                 var entity = (from t in db.Todos
-                             where t.Id == todoEntityToUpdate.Id
-                             select t).First();
+                              where t.Id == todoToUpdate.Id
+                              select t).First();
 
-                todoEntityToUpdate.ProjectID = entity.ProjectID;
-                todoEntityToUpdate.ParentTodoID = entity.ParentTodoID;
+                todoToUpdate.ProjectID = entity.ProjectID;
+                todoToUpdate.ParentTodoID = entity.ParentTodoID;
 
                 db.Entry(entity).State = EntityState.Detached;
-                db.Entry(todoEntityToUpdate).State = EntityState.Modified;
+                db.Entry(todoToUpdate).State = EntityState.Modified;
 
                 db.SaveChanges();
             }
         }
 
-        public void DeleteTodo(TodoEntity todoEntityToDelete)
+        public void DeleteTodo(TodoEntity todoToDelete)
         {
             using (var db = new ProjectTrackerContext())
             {
-                DeleteChlidrenTodoEntities(db, todoEntityToDelete);
+                DeleteChlidrenTodoEntities(db, todoToDelete);
 
-                db.Entry(todoEntityToDelete).State = EntityState.Deleted;
+                db.Entry(todoToDelete).State = EntityState.Deleted;
                 db.SaveChanges();
             }
         }
-        private void DeleteChlidrenTodoEntities(ProjectTrackerContext db, TodoEntity todoEntity)
+        private void DeleteChlidrenTodoEntities(ProjectTrackerContext db, TodoEntity todo)
         {
-            var todoEntities = (from t in db.Todos
-                                where t.ParentTodoID == todoEntity.Id
-                                select t).ToList();
+            var todos = (from t in db.Todos
+                         where t.ParentTodoID == todo.Id
+                         select t).ToList();
 
-            foreach (var item in todoEntities)
+            foreach (var item in todos)
             {
                 DeleteChlidrenTodoEntities(db, item);
 
@@ -103,11 +103,11 @@ namespace ProjectTracker.DAL.Services.Implementations
         {
             using (var db = new ProjectTrackerContext())
             {
-                var todoEntities = (from t in db.Todos
-                                    where t.ProjectID == projectId
-                                    select t).ToList();
+                var todos = (from t in db.Todos
+                             where t.ProjectID == projectId
+                             select t).ToList();
 
-                foreach (var item in todoEntities)
+                foreach (var item in todos)
                 {
                     DeleteChlidrenTodoEntities(db, item);
 

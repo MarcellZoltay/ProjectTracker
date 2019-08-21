@@ -25,6 +25,7 @@ namespace ProjectTracker.WPF
 
             containerRegistry.RegisterSingleton<IProjectService, ProjectService>();
             containerRegistry.RegisterSingleton<ITodoService, TodoService>();
+            containerRegistry.RegisterSingleton<IPathService, PathService>();
         }
     }
 }

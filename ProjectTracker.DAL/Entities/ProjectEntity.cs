@@ -13,11 +13,13 @@ namespace ProjectTracker.DAL.Entities
         public ProjectEntity()
         {
             this.Todos = new HashSet<TodoEntity>();
+            this.Paths = new HashSet<PathEntity>();
         }
 
         public int Id { get; set; }
         public string Title { get; set; }
 
         public virtual ICollection<TodoEntity> Todos { get; set; }
+        public virtual ICollection<PathEntity> Paths { get; set; }
     }
 }

@@ -1,21 +1,34 @@
 ﻿<UserControl x:Class="ProjectTracker.WPF.Views.ProjectPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converter="clr-namespace:StatisticMaker.WPF.Converters"
              xmlns:prism="http://prismlibrary.com/"             
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <Image x:Key="openFolderIconLinks" Source="../Icons/open-folder-icon.png" />
+        <Image x:Key="addIconLinks" Source="../Icons/add-icon.png" />
+        <Image x:Key="openFolderIconFiles" Source="../Icons/open-folder-icon.png" />
+        <Image x:Key="addIconFiles" Source="../Icons/add-icon.png" />
+        <Image x:Key="openFolderIconFolders" Source="../Icons/open-folder-icon.png" />
+        <Image x:Key="addIconFolders" Source="../Icons/add-icon.png" />
+        <Image x:Key="openFolderIconApps" Source="../Icons/open-folder-icon.png" />
+        <Image x:Key="addIconApps" Source="../Icons/add-icon.png" />
+        <Image x:Key="addIconTodos" Source="../Icons/add-icon.png" />
+        <Image x:Key="addIconTodos2" Source="../Icons/add-icon.png" />
     </UserControl.Resources>
     
-    <Grid>
+    <Grid Background="Transparent"
+          MouseDown="MainGrid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="50" MinHeight="50" />
+            <RowDefinition Height="60" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
 
@@ -25,145 +38,469 @@
                 <Button Content="Back" Command="{Binding BackToStartPageClickCommand}" 
                         Width="50" Height="25"
                         Margin="10"/>
-                <Label Content="{Binding Project.Title, NotifyOnSourceUpdated=True}" FontSize="20" FontWeight="SemiBold"
+                <Label Content="{Binding Project.Title}" FontSize="20" FontWeight="SemiBold"
                        VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
-        <Grid Grid.Row="1"
-              Margin="15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
+        <Button Grid.Row="1"
+                Content="Open project" Command="{Binding OpenProjectCommand}" 
+                HorizontalAlignment="Left" VerticalAlignment="Center"
+                Height="25" Width="100"
+                Margin="20 0"
+                FontWeight="Bold" FontSize="14"/>
 
-            <Label HorizontalAlignment="Left"
-                   Content="TODOs" FontSize="22" FontWeight="SemiBold"
-                   VerticalAlignment="Center"
-                   Margin="5 0"/>
-            <Button Grid.Column="1" 
-                    HorizontalAlignment="Right" VerticalAlignment="Center"
-                    Content="+" FontSize="20"
-                    Margin="10 0" Padding="0 -5 0 0"
-                    Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                    Command="{Binding AddTodoCommand}"/>
+        <Border Grid.Row="2"
+                BorderThickness="1" BorderBrush="Black" CornerRadius="3"
+                Margin="20 0 20 20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" MinHeight="40" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <Border Grid.Row="1" Grid.ColumnSpan="2"
-                    BorderThickness="1" BorderBrush="Black" CornerRadius="3"
-                    Margin="10 0 10 10">
-                <TreeView x:Name="tvTodos"
-                          ItemsSource="{Binding TodoTreeViewItems}"
-                          BorderThickness="0" Background="Transparent"
-                          MouseDown="TvTodos_MouseDown">
-
-                    <TreeView.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Add todo"
-                                      Command="{Binding AddTodoCommand}"/>
-                        </ContextMenu>
-                    </TreeView.ContextMenu>
-
-                    <TreeView.Resources>
-                        <ContextMenu x:Key="ItemContextMenu">
-                            <MenuItem Header="In progress"
-                                      IsCheckable="True" 
-                                      IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem.Todo.IsInProgress}"
-                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.IsInProgressClickedCommand}" 
-                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
-                            <Separator/>
-                            <MenuItem Header="Add todo"
-                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.AddTodoCommand}" 
-                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
-                            <MenuItem Header="Edit"
-                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.EditTodoCommand}" 
-                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
-                            <Separator/>
-                            <MenuItem Header="Delete"
-                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.DeleteTodoCommand}" 
-                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
-                        </ContextMenu>
-
-                        <Style TargetType="{x:Type TextBlock}" x:Key="todoProgressStyle">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Todo.IsDone}" Value="true">
-                                    <Setter Property="Foreground">
-                                        <Setter.Value>
-                                            <SolidColorBrush Color="Green"/>
-                                        </Setter.Value>
-                                    </Setter>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Todo.IsInProgress}" Value="true">
-                                    <Setter Property="Foreground">
-                                        <Setter.Value>
-                                            <SolidColorBrush Color="Orange"/>
-                                        </Setter.Value>
-                                    </Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TreeView.Resources>
-
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0 3" Height="20">
-                                <CheckBox IsChecked="{Binding Todo.IsDone}"
-                                          Margin="0 0 5 0"
-                                          VerticalAlignment="Center"
-                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.IsDoneClickedCommand}" 
-                                          CommandParameter="{Binding Todo}"/>
-                                <TextBlock VerticalAlignment="Center" Style="{StaticResource todoProgressStyle}">
-                                    <Run Text="{Binding Todo.Text}" />
-                                    <Run>
-                                        <Run.Style>
-                                            <Style TargetType="Run">
-                                                <Style.Setters>
-                                                    <Setter Property="Text" Value=" - "/>
-                                                </Style.Setters>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Todo.Deadline}" Value="{x:Null}">
-                                                        <Setter Property="Text" Value=""/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Run.Style>
-                                    </Run>
-                                    <Run Text="{Binding Todo.Deadline, StringFormat=yyyy.MM.dd.}"
-                                         TextDecorations="Underline"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
-
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="{x:Type TreeViewItem}" >
-                            <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                            <Setter Property="IsSelected" Value="{Binding IsSelected}" />
-                            <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                    
-                </TreeView>
-            </Border>
-
-            <Label Grid.Row="1" Grid.ColumnSpan="2"
-                   Content="Loading..." 
-                   VerticalAlignment="Center" HorizontalAlignment="Center"
-                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <StackPanel Grid.Row="1" Grid.ColumnSpan="2"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                        Visibility="{Binding IsListEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Button Content="+" FontSize="20"
-                        Margin="5" Padding="0 -5 0 0"
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center"
+                       Content="TODOs" FontSize="20" FontWeight="SemiBold"
+                       Margin="5 0"/>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Content="{StaticResource addIconTodos}" FontSize="20" Height="24"
+                        Margin="10 0" Padding="3"
                         Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
                         Command="{Binding AddTodoCommand}"/>
-                <Label Content="Add todo" VerticalAlignment="Center"/>
-            </StackPanel>
+
+                <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
+                    <TreeView x:Name="tvTodos"
+                              ItemsSource="{Binding TodoTreeViewItems}"
+                              BorderThickness="0" Background="Transparent"
+                              MouseDown="TvTodos_MouseDown">
+
+                        <TreeView.InputBindings>
+                            <KeyBinding Key="Delete" Command="{Binding DeleteTodoCommand}" CommandParameter="{Binding ElementName=tvTodos, Path=SelectedItem}"/>
+                        </TreeView.InputBindings>
+                        
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Add todo"
+                                          Command="{Binding AddTodoCommand}"/>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+
+                        <TreeView.Resources>
+                            <ContextMenu x:Key="ItemContextMenu">
+                                <MenuItem Header="In progress"
+                                          IsCheckable="True" 
+                                          IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem.Todo.IsInProgress}"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.IsInProgressClickedCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                                <Separator/>
+                                <MenuItem Header="Add todo"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.AddTodoCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                                <MenuItem Header="Edit"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.EditTodoCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                                <Separator/>
+                                <MenuItem Header="Delete"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.DeleteTodoCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                            </ContextMenu>
+
+                            <Style TargetType="{x:Type TextBlock}" x:Key="todoProgressStyle">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Todo.IsDone}" Value="true">
+                                        <Setter Property="Foreground">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="Green"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Todo.IsInProgress}" Value="true">
+                                        <Setter Property="Foreground">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="Orange"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TreeView.Resources>
+
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0 3" Height="20">
+                                    <CheckBox IsChecked="{Binding Todo.IsDone}"
+                                              Margin="0 0 5 0"
+                                              VerticalAlignment="Center"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.IsDoneClickedCommand}" 
+                                              CommandParameter="{Binding Todo}"/>
+                                    <TextBlock VerticalAlignment="Center" Style="{StaticResource todoProgressStyle}">
+                                            <Run Text="{Binding Todo.Text}" />
+                                            <Run>
+                                                <Run.Style>
+                                                    <Style TargetType="Run">
+                                                        <Style.Setters>
+                                                            <Setter Property="Text" Value=" - "/>
+                                                        </Style.Setters>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Todo.Deadline}" Value="{x:Null}">
+                                                                <Setter Property="Text" Value=""/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Run.Style>
+                                            </Run>
+                                            <Run Text="{Binding Todo.Deadline, StringFormat=yyyy.MM.dd.}"
+                                                 TextDecorations="Underline"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="{x:Type TreeViewItem}" >
+                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+
+                    </TreeView>
+                </Border>
+
+                <Label Grid.Row="1"
+                       Content="Loading..." 
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       Visibility="{Binding IsTodoTreeViewLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding IsTodoTreeViewEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button Content="{StaticResource addIconTodos2}" FontSize="20" Height="24"
+                            Margin="5" Padding="3"
+                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                            Command="{Binding AddTodoCommand}"/>
+                    <Label Content="Add todo" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Grid.Column="1"
+              Margin="20 0 20 20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Column="0" Grid.Row="0"
+                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
+                    Margin="0 0 10 10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" MinHeight="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
+                           Margin="5 0"
+                           Content="Links" FontSize="20" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Right"
+                                Margin="10 0">
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource openFolderIconLinks}" FontSize="20" Height="24"
+                                Padding="2 2 0 0"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding OpenProjectCommand}"
+                                CommandParameter="Webpage link"/>
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource addIconLinks}" FontSize="20" Height="24"
+                                Margin="5 0 0 0" Padding="3"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding AddWebpageLinkCommand}"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
+                        <ListView x:Name="lvWebpageLinks" ItemsSource="{Binding WebpageLinks}"
+                                  SelectedItem="{Binding SelectedWebpageLinkPath}"
+                                  BorderThickness="0" Background="Transparent">
+
+                            <ListView.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvWebpageLinks, Path=SelectedItem}"/>
+                            </ListView.InputBindings>
+
+                            <ListView.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <MenuItem Header="Open"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenWebpageLinkCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Delete"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding Icon}" />
+                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding OpenWebpageLinkCommand}"
+                                                           CommandParameter="{Binding ElementName=lvWebpageLinks, Path=SelectedItem}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ListView>
+                    </Border>
+                </Grid>
+            </Border>
+            
+            <Border Grid.Column="0" Grid.Row="1"
+                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
+                    Margin="0 10 10 0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" MinHeight="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
+                           Margin="5 0"
+                           Content="Files" FontSize="20" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Right"
+                                Margin="10 0">
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource openFolderIconFiles}" FontSize="20" Height="24"
+                                Padding="2 2 0 0"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding OpenProjectCommand}"
+                                CommandParameter="File"/>
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource addIconFolders}" FontSize="20" Height="24"
+                                Margin="5 0 0 0" Padding="3"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding AddFileCommand}"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
+                        <ListView x:Name="lvFiles" ItemsSource="{Binding Files}"
+                                  SelectedItem="{Binding SelectedFilePath}"
+                                  BorderThickness="0" Background="Transparent">
+
+                            <ListView.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvFiles, Path=SelectedItem}"/>
+                            </ListView.InputBindings>
+                            
+                            <ListView.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <MenuItem Header="Open"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenPathCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Delete"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding Icon}"/>
+                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
+                                                           CommandParameter="{Binding ElementName=lvFiles, Path=SelectedItem}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ListView>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Grid.Row="0"
+                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
+                    Margin="10 0 0 10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" MinHeight="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
+                           Margin="5 0"
+                           Content="Folders" FontSize="20" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Right"
+                                Margin="10 0">
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource openFolderIconFolders}" FontSize="20" Height="24"
+                                Padding="2 2 0 0"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding OpenProjectCommand}"
+                                CommandParameter="Folder"/>
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource addIconFiles}" FontSize="20" Height="24"
+                                Margin="5 0 0 0" Padding="3"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding AddFolderCommand}"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
+                        <ListView x:Name="lvFolders" ItemsSource="{Binding Folders}"
+                                  SelectedItem="{Binding SelectedFolderPath}"
+                                  BorderThickness="0" Background="Transparent">
+
+                            <ListView.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvFolders, Path=SelectedItem}"/>
+                            </ListView.InputBindings>
+                            
+                            <ListView.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <MenuItem Header="Open"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenPathCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Delete"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:Name="projectItem">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding Icon}" />
+                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
+                                                           CommandParameter="{Binding ElementName=lvFolders, Path=SelectedItem}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ListView>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Grid.Row="1"
+                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
+                    Margin="10 10 0 0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" MinHeight="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
+                           Margin="5 0"
+                           Content="Apps" FontSize="20" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Right"
+                                Margin="10 0">
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource openFolderIconApps}" FontSize="20" Height="24"
+                                Padding="2 2 0 0"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding OpenProjectCommand}"
+                                CommandParameter="Application"/>
+                        <Button VerticalAlignment="Center"
+                                Content="{StaticResource addIconApps}" FontSize="20" Height="24"
+                                Margin="5 0 0 0" Padding="3"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding AddAppCommand}"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
+                        <ListView x:Name="lvApps" ItemsSource="{Binding Apps}"
+                                  SelectedItem="{Binding SelectedAppPath}"
+                                  BorderThickness="0" Background="Transparent">
+
+                            <ListView.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvApps, Path=SelectedItem}"/>
+                            </ListView.InputBindings>
+                            
+                            <ListView.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <MenuItem Header="Open"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenPathCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Delete"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding Icon}" />
+                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
+                                                           CommandParameter="{Binding ElementName=lvApps, Path=SelectedItem}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ListView>
+                    </Border>
+                </Grid>
+            </Border>
+            
         </Grid>
+        
     </Grid>
 </UserControl>

@@ -18,12 +18,14 @@ namespace ProjectTracker.BLL.Models
         }
 
         public List<Todo> Todos { get; }
+        public List<Path> Paths { get; }
 
         public Project(string title)
         {
             Title = title;
 
             Todos = new List<Todo>();
+            Paths = new List<Path>();
         }
 
         public void AddTodo(Todo todo)
@@ -34,10 +36,23 @@ namespace ProjectTracker.BLL.Models
         {
             Todos.AddRange(todos);
         }
-
         public void RemoveTodo(Todo todo)
         {
             Todos.Remove(todo);
+        }
+
+        public void AddPath(Path path)
+        {
+            Paths.Add(path);
+        }
+        public void AddPathRange(IEnumerable<Path> paths)
+        {
+            Paths.AddRange(paths);
+        }
+
+        public void RemovePath(Path path)
+        {
+            Paths.Remove(path);
         }
     }
 

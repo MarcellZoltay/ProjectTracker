@@ -1,4 +1,6 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
 using ProjectTracker.BLL.Models;
@@ -8,9 +10,11 @@ using ProjectTracker.WPF.ViewModels.DialogViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace ProjectTracker.WPF.ViewModels
@@ -18,15 +22,11 @@ namespace ProjectTracker.WPF.ViewModels
     public class ProjectPageViewModel : BindableBase, INavigationAware
     {
         private readonly IRegionManager regionManager;
+        private ITodoService todoService;
+        private IPathService pathService;
 
         public DelegateCommand BackToStartPageClickCommand { get; }
-        public DelegateCommand<TodoTreeViewItem> AddTodoCommand { get; }
-        public DelegateCommand<TodoTreeViewItem> EditTodoCommand { get; }
-        public DelegateCommand<TodoTreeViewItem> DeleteTodoCommand { get; }
-        public DelegateCommand<Todo> IsDoneClickedCommand { get; }
-        public DelegateCommand<TodoTreeViewItem> IsInProgressClickedCommand { get; }
-
-        private ITodoService todoService;
+        public DelegateCommand<string> OpenProjectCommand { get; }
 
         private Project project;
         public Project Project
@@ -35,29 +35,132 @@ namespace ProjectTracker.WPF.ViewModels
             private set { SetProperty(ref project, value); }
         }
 
+        // To do treeview
+        public DelegateCommand<TodoTreeViewItem> AddTodoCommand { get; }
+        public DelegateCommand<TodoTreeViewItem> EditTodoCommand { get; }
+        public DelegateCommand<TodoTreeViewItem> DeleteTodoCommand { get; }
+        public DelegateCommand<Todo> IsDoneClickedCommand { get; }
+        public DelegateCommand<TodoTreeViewItem> IsInProgressClickedCommand { get; }        
+
         public ObservableCollection<TodoTreeViewItem> TodoTreeViewItems { get; }
 
-
-        private bool isLoading;
-        public bool IsLoading
+        private bool isTodoTreeViewLoading;
+        public bool IsTodoTreeViewLoading
         {
-            get { return isLoading; }
-            set { SetProperty(ref isLoading, value); }
+            get { return isTodoTreeViewLoading; }
+            set { SetProperty(ref isTodoTreeViewLoading, value); }
         }
 
-        private bool isListEmpty;
-        public bool IsListEmtpy
+        private bool isTodoTreeViewEmpty;
+        public bool IsTodoTreeViewEmtpy
         {
-            get { return isListEmpty; }
-            set { SetProperty(ref isListEmpty, value); }
+            get { return isTodoTreeViewEmpty; }
+            set { SetProperty(ref isTodoTreeViewEmpty, value); }
         }
 
 
-        public ProjectPageViewModel(IRegionManager regionManager, ITodoService todoService)
+        public DelegateCommand<PathListViewItem> OpenPathCommand { get; }
+        public DelegateCommand<PathListViewItem> DeletePathCommand { get; }
+
+        // Links
+        public DelegateCommand AddWebpageLinkCommand { get; }
+        public DelegateCommand<PathListViewItem> OpenWebpageLinkCommand { get; }
+
+        public ObservableCollection<PathListViewItem> WebpageLinks { get; }
+
+        private PathListViewItem selectedWebpageLinkPath;
+        public PathListViewItem SelectedWebpageLinkPath
+        {
+            get { return selectedWebpageLinkPath; }
+            set
+            {
+                SetProperty(ref selectedWebpageLinkPath, value);
+
+                if(value != null)
+                {
+                    SelectedFilePath = null;
+                    SelectedFolderPath = null;
+                    SelectedAppPath = null;
+                }
+            }
+        }
+
+        // Files
+        public DelegateCommand AddFileCommand { get; }
+
+        public ObservableCollection<PathListViewItem> Files { get; }
+
+        private PathListViewItem selectedFilePath;
+        public PathListViewItem SelectedFilePath
+        {
+            get { return selectedFilePath; }
+            set
+            {
+                SetProperty(ref selectedFilePath, value);
+
+                if (value != null)
+                {
+                    SelectedWebpageLinkPath = null;
+                    SelectedFolderPath = null;
+                    SelectedAppPath = null;
+                }
+            }
+        }
+
+        // Folders
+        public DelegateCommand AddFolderCommand { get; }
+
+        public ObservableCollection<PathListViewItem> Folders { get; }
+
+        private PathListViewItem selectedFolderPath;
+        public PathListViewItem SelectedFolderPath
+        {
+            get { return selectedFolderPath; }
+            set
+            {
+                SetProperty(ref selectedFolderPath, value);
+
+                if (value != null)
+                {
+                    SelectedWebpageLinkPath = null;
+                    SelectedFilePath = null;
+                    SelectedAppPath = null;
+                }
+            }
+        }
+
+        // Apps
+        public DelegateCommand AddAppCommand { get; }
+
+        public ObservableCollection<PathListViewItem> Apps { get; }
+
+        private PathListViewItem selectedAppPath;
+        public PathListViewItem SelectedAppPath
+        {
+            get { return selectedAppPath; }
+            set
+            {
+                SetProperty(ref selectedAppPath, value);
+
+                if (value != null)
+                {
+                    SelectedWebpageLinkPath = null;
+                    SelectedFilePath = null;
+                    SelectedFolderPath = null;
+                }
+            }
+        }
+
+
+        public ProjectPageViewModel(IRegionManager regionManager, ITodoService todoService, IPathService pathService)
         {
             this.regionManager = regionManager;
+            this.todoService = todoService;
+            this.pathService = pathService;
 
             BackToStartPageClickCommand = new DelegateCommand(BackToStartPageClick);
+            OpenProjectCommand = new DelegateCommand<string>(OpenProjectClicked);
+
             AddTodoCommand = new DelegateCommand<TodoTreeViewItem>(AddTodo);
             EditTodoCommand = new DelegateCommand<TodoTreeViewItem>(EditTodo);
             DeleteTodoCommand = new DelegateCommand<TodoTreeViewItem>(DeleteTodo);
@@ -66,13 +169,52 @@ namespace ProjectTracker.WPF.ViewModels
 
             TodoTreeViewItems = new ObservableCollection<TodoTreeViewItem>();
 
-            this.todoService = todoService;
+            OpenPathCommand = new DelegateCommand<PathListViewItem>(OpenPath);
+            DeletePathCommand = new DelegateCommand<PathListViewItem>(DeletePath);
+
+            AddWebpageLinkCommand = new DelegateCommand(AddWebpageLink);
+            OpenWebpageLinkCommand = new DelegateCommand<PathListViewItem>(OpenWebpageLink);
+            WebpageLinks = new ObservableCollection<PathListViewItem>();
+
+            AddFileCommand = new DelegateCommand(AddFile);
+            Files = new ObservableCollection<PathListViewItem>();
+
+            AddFolderCommand = new DelegateCommand(AddFolder);
+            Folders = new ObservableCollection<PathListViewItem>();
+
+            AddAppCommand = new DelegateCommand(AddApp);
+            Apps = new ObservableCollection<PathListViewItem>();
         }
 
         private void BackToStartPageClick()
         {
             regionManager.RequestNavigate("MainRegion", "StartPage");
         }
+
+        private void OpenProjectClicked(string type = null)
+        {
+            var paths = new List<PathListViewItem>();
+            paths.AddRange(WebpageLinks);
+            paths.AddRange(Files);
+            paths.AddRange(Folders);
+            paths.AddRange(Apps);
+
+            var dialogViewModel = new OpenProjectDialogViewModel(paths, type);
+            if (dialogViewModel.ShowDialog() == true)
+            {
+                foreach (var pathToOpen in dialogViewModel.Paths)
+                {
+                    if (pathToOpen.Open)
+                    {
+                        if (pathToOpen.Path.Type == "Webpage link")
+                            pathService.OpenWebpageLink(GetDefaultBrowserPath(), pathToOpen.Path);
+                        else
+                            pathService.OpenPath(pathToOpen.Path);
+                    }
+                }
+            }
+        }
+
         private void AddTodo(TodoTreeViewItem item)
         {
             var title = item == null ? "project" : "selected todo";
@@ -88,7 +230,7 @@ namespace ProjectTracker.WPF.ViewModels
                     Project.AddTodo(todo);
                     TodoTreeViewItems.Add(todoTreeViewItem);
 
-                    IsListEmtpy = false;
+                    IsTodoTreeViewEmtpy = false;
                 }
                 else
                 {
@@ -124,7 +266,7 @@ namespace ProjectTracker.WPF.ViewModels
                     Project.RemoveTodo(item.Todo);
                     TodoTreeViewItems.Remove(item);
 
-                    IsListEmtpy = TodoTreeViewItems.Count == 0;
+                    IsTodoTreeViewEmtpy = TodoTreeViewItems.Count == 0;
                 }
                 else
                 {
@@ -145,31 +287,247 @@ namespace ProjectTracker.WPF.ViewModels
             await todoService.UpdateTodoAsync(item.Todo);
         }
 
+
+        private void OpenPath(PathListViewItem item)
+        {
+            if(item != null)
+            {
+                try
+                {
+                    pathService.OpenPath(item.Path);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Path doesn't exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+        }
+        private async void DeletePath(PathListViewItem item)
+        {
+            var result = MessageBox.Show($"Are you sure you want to delete this path?", "Delete path", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.OK)
+            {
+                Project.RemovePath(item.Path);
+
+                WebpageLinks.Remove(item);
+                Files.Remove(item);
+                Folders.Remove(item);
+                Apps.Remove(item);
+
+                await pathService.DeletePathAsync(item.Path);
+            }
+        }
+
+        private void OpenWebpageLink(PathListViewItem item)
+        {
+            if (item != null)
+            {
+                pathService.OpenWebpageLink(GetDefaultBrowserPath(), item.Path);
+            }
+        }
+
+        private void AddWebpageLink()
+        {
+            var dialogViewModel = new WebpageDialogViewModel();
+            if (dialogViewModel.ShowDialog() == true)
+            {
+                var webpageLink = pathService.CreateWebpageLinkPath(project.Id, dialogViewModel.WebpageLink);
+
+                Project.AddPath(webpageLink);
+                WebpageLinks.Add(new PathListViewItem(webpageLink, GetPathIcon(webpageLink)));
+            }
+        }
+        private void AddFile()
+        {
+            var commonOpenFileDialog = new CommonOpenFileDialog();
+            commonOpenFileDialog.Multiselect = true;
+
+            if (commonOpenFileDialog.ShowDialog() != CommonFileDialogResult.Ok)
+                return;
+
+            foreach (var fileName in commonOpenFileDialog.FileNames)
+            {
+                var file = pathService.CreateFilePath(project.Id, fileName);
+
+                Project.AddPath(file);
+                Files.Add(new PathListViewItem(file, GetPathIcon(file)));
+            }
+        }
+        private void AddFolder()
+        {
+            var commonOpenFileDialog = new CommonOpenFileDialog();
+            commonOpenFileDialog.IsFolderPicker = true;
+
+            if (commonOpenFileDialog.ShowDialog() != CommonFileDialogResult.Ok)
+                return;
+
+            var folder = pathService.CreateFolderPath(Project.Id, commonOpenFileDialog.FileName);
+
+            Project.AddPath(folder);
+            Folders.Add(new PathListViewItem(folder, GetPathIcon(folder)));
+
+        }
+        private void AddApp()
+        {
+            var dialogViewModel = new ApplicationDialogViewModel();
+            if (dialogViewModel.ShowDialog() == true)
+            {
+                var appPath = pathService.CreateApplicationPath(project.Id, dialogViewModel.AppPath);
+
+                Project.AddPath(appPath);
+                Apps.Add(new PathListViewItem(appPath, GetPathIcon(appPath)));
+            }
+        }
+
+        private BitmapSource GetPathIcon(Path path)
+        {
+            try
+            {
+                string fullPath = path.Address;
+
+                if (path.Type == "Webpage link")
+                {
+                    fullPath = GetDefaultBrowserPath();
+                }
+
+                var bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                                Icons.ExtractSmallIconFromPath(fullPath).Handle,
+                                System.Windows.Int32Rect.Empty,
+                                System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+
+                return bmpSrc;
+            }
+            catch (Exception)
+            {
+
+            }
+
+            return null;
+        }
+        private string GetDefaultBrowserPath()
+        {
+            string urlAssociation = @"Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http";
+            string browserPathKey = @"$BROWSER$\shell\open\command";
+
+            RegistryKey userChoiceKey = null;
+            string browserPath = "";
+
+            try
+            {
+                //Read default browser path from userChoiceLKey
+                userChoiceKey = Registry.CurrentUser.OpenSubKey(urlAssociation + @"\UserChoice", false);
+
+                //If user choice was not found, try machine default
+                if (userChoiceKey == null)
+                {
+                    //Read default browser path from Win XP registry key
+                    var browserKey = Registry.ClassesRoot.OpenSubKey(@"HTTP\shell\open\command", false);
+
+                    //If browser path wasn’t found, try Win Vista (and newer) registry key
+                    if (browserKey == null)
+                    {
+                        browserKey = Registry.CurrentUser.OpenSubKey(urlAssociation, false);
+                    }
+                    var path = ClarifyBrowserPath(browserKey.GetValue(null) as string);
+                    browserKey.Close();
+                    return path;
+                }
+                else
+                {
+                    // user defined browser choice was found
+                    string progId = (userChoiceKey.GetValue("ProgId").ToString());
+                    userChoiceKey.Close();
+
+                    // now look up the path of the executable
+                    string concreteBrowserKey = browserPathKey.Replace("$BROWSER$", progId);
+                    var kp = Registry.ClassesRoot.OpenSubKey(concreteBrowserKey, false);
+                    browserPath = ClarifyBrowserPath(kp.GetValue(null) as string);
+                    kp.Close();
+                    return browserPath;
+                }
+            }
+            catch
+            {
+                return "";
+            }
+        }
+        private string ClarifyBrowserPath(string path)
+        {
+            var parts = path.Split('\"');
+
+            foreach (var p in parts)
+            {
+                if (p.Contains(".exe"))
+                    return p;
+
+            }
+
+            return "";
+        }
+
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
+            TodoTreeViewItems.Clear();
+            WebpageLinks.Clear();
+            Files.Clear();
+            Folders.Clear();
+            Apps.Clear();
+
             var project = (Project)navigationContext.Parameters["project"];
             var projectHasOpened = (bool)navigationContext.Parameters["projectHasOpened"];
 
             Project = project;
 
-            IsLoading = true;
+            IsTodoTreeViewLoading = true;
 
             var currentDispatcher = Dispatcher.CurrentDispatcher;
             Task.Run(() =>
             {
                 if (!projectHasOpened)
                 {
-                    var todos = todoService.GetTodos(project.Id);
+                    var todos = todoService.GetTodosByProjectId(project.Id);
                     Project.AddTodoRange(todos);
                 }
 
                 currentDispatcher.Invoke(new Action(() =>
                 {
-                    TodoTreeViewItems.Clear();
                     TodoTreeViewItems.AddRange(project.Todos.ConvertToTreeViewItems());
 
-                    IsLoading = false;
-                    IsListEmtpy = TodoTreeViewItems.Count == 0;
+                    IsTodoTreeViewLoading = false;
+                    IsTodoTreeViewEmtpy = TodoTreeViewItems.Count == 0;
+                }));
+            });
+            Task.Run(() =>
+            {
+                if (!projectHasOpened)
+                {
+                    var paths = pathService.GetPathsByProjectId(project.Id);
+                    Project.AddPathRange(paths);
+                }
+
+                var webPageLinks = (from p in Project.Paths
+                                    where p.Type == "Webpage link"
+                                    select p).ToList();
+
+                var files = (from p in Project.Paths
+                             where p.Type == "File"
+                             select p).ToList();
+
+                var folders = (from p in Project.Paths
+                               where p.Type == "Folder"
+                               select p).ToList();
+
+                var apps = (from p in Project.Paths
+                            where p.Type == "Application"
+                            select p).ToList();
+
+                currentDispatcher.Invoke(new Action(() =>
+                {
+                    WebpageLinks.AddRange(webPageLinks.ConvertToListViewItems(GetPathIcon));
+                    Files.AddRange(files.ConvertToListViewItems(GetPathIcon));
+                    Folders.AddRange(folders.ConvertToListViewItems(GetPathIcon));
+                    Apps.AddRange(apps.ConvertToListViewItems(GetPathIcon));
                 }));
             });
         }

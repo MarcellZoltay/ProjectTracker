@@ -11,9 +11,9 @@ namespace ProjectTracker.BLL.Services.Interfaces
     {
         List<Project> GetProjects();
         Project CreateProject(string projectTitle);
-        void UpdateProject(Project project);
-        Task UpdateProjectAsync(Project project);
-        void DeleteProject(Project project);
-        Task DeleteProjectAsync(Project project);
+        void UpdateProject(Project projectToUpdate);
+        Task UpdateProjectAsync(Project projectToUpdate);
+        void DeleteProject(Project projectToDelete);
+        Task DeleteProjectAsync(Project projectToDelete);
     }
 }

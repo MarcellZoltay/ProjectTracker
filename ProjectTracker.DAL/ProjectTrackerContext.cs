@@ -13,7 +13,12 @@ namespace ProjectTracker.DAL
     {
         public DbSet<ProjectEntity> Projects { get; set; }
         public DbSet<TodoEntity> Todos { get; set; }
+        public DbSet<PathEntity> Paths { get; set; }
+        public DbSet<PathType> PathTypes { get; set; }
 
-        public ProjectTrackerContext() : base ("ProjectTrackerDB") { }
+        public ProjectTrackerContext() : base ("ProjectTrackerDB")
+        {
+            Database.SetInitializer(new ProjectTrackerDBInitializer());
+        }
     }
 }
