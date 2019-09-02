@@ -14,7 +14,7 @@ namespace ProjectTracker.DAL
         {
             IList<PathType> pathTypes = new List<PathType>();
 
-            pathTypes.Add(new PathType() { Name = "Web page link" });
+            pathTypes.Add(new PathType() { Name = "Webpage link" });
             pathTypes.Add(new PathType() { Name = "File" });
             pathTypes.Add(new PathType() { Name = "Folder" });
             pathTypes.Add(new PathType() { Name = "Application" });

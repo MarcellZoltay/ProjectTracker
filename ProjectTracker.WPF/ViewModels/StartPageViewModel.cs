@@ -28,7 +28,6 @@ namespace ProjectTracker.WPF.ViewModels
         private IProjectService projectService;
 
         public ObservableCollection<Project> Projects { get; }
-        private bool[] projectsHasOpened;
 
         private Project selectedProject;
         public Project SelectedProject
@@ -76,8 +75,6 @@ namespace ProjectTracker.WPF.ViewModels
                     {
                         var projects = projectService.GetProjects();
 
-                        projectsHasOpened = new bool[projects.Count];
-
                         currentDispatcher.Invoke(new Action(() =>
                         {
                             Projects.AddRange(projects);
@@ -118,21 +115,6 @@ namespace ProjectTracker.WPF.ViewModels
             {
                 var navigationParameters = new NavigationParameters();
                 navigationParameters.Add("project", project);
-
-                bool projectHasOpened;
-                int index = Projects.IndexOf(project);
-                
-                if(index >= projectsHasOpened.Count())
-                {
-                    projectHasOpened = true;
-                }
-                else
-                {
-                    projectHasOpened = projectsHasOpened[index];
-                    projectsHasOpened[index] = true;
-                }
-
-                navigationParameters.Add("projectHasOpened", projectHasOpened);
 
                 regionManager.RequestNavigate("MainRegion", "ProjectPage", navigationParameters);
 

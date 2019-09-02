@@ -248,6 +248,7 @@
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 
@@ -324,6 +325,7 @@
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 
@@ -400,6 +402,7 @@
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 
@@ -476,6 +479,7 @@
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 

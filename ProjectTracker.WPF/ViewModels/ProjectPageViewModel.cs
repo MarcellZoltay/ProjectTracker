@@ -304,6 +304,9 @@ namespace ProjectTracker.WPF.ViewModels
         }
         private async void DeletePath(PathListViewItem item)
         {
+            if (item == null)
+                return;
+
             var result = MessageBox.Show($"Are you sure you want to delete this path?", "Delete path", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.OK)
@@ -330,13 +333,21 @@ namespace ProjectTracker.WPF.ViewModels
         private void AddWebpageLink()
         {
             var dialogViewModel = new WebpageDialogViewModel();
-            if (dialogViewModel.ShowDialog() == true)
+            if (dialogViewModel.ShowDialog() == false)
+                return;
+            
+            try
             {
                 var webpageLink = pathService.CreateWebpageLinkPath(project.Id, dialogViewModel.WebpageLink);
 
                 Project.AddPath(webpageLink);
                 WebpageLinks.Add(new PathListViewItem(webpageLink, GetPathIcon(webpageLink)));
             }
+            catch (Exception e)
+            {
+                MessageBox.Show($"{e.Message}\n{e.Source}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            
         }
         private void AddFile()
         {
@@ -346,13 +357,21 @@ namespace ProjectTracker.WPF.ViewModels
             if (commonOpenFileDialog.ShowDialog() != CommonFileDialogResult.Ok)
                 return;
 
-            foreach (var fileName in commonOpenFileDialog.FileNames)
+            try
             {
-                var file = pathService.CreateFilePath(project.Id, fileName);
+                foreach (var fileName in commonOpenFileDialog.FileNames)
+                {
+                    var file = pathService.CreateFilePath(project.Id, fileName);
 
-                Project.AddPath(file);
-                Files.Add(new PathListViewItem(file, GetPathIcon(file)));
+                    Project.AddPath(file);
+                    Files.Add(new PathListViewItem(file, GetPathIcon(file)));
+                }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show($"{e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
         }
         private void AddFolder()
         {
@@ -362,22 +381,38 @@ namespace ProjectTracker.WPF.ViewModels
             if (commonOpenFileDialog.ShowDialog() != CommonFileDialogResult.Ok)
                 return;
 
-            var folder = pathService.CreateFolderPath(Project.Id, commonOpenFileDialog.FileName);
+            try
+            {
 
-            Project.AddPath(folder);
-            Folders.Add(new PathListViewItem(folder, GetPathIcon(folder)));
+                var folder = pathService.CreateFolderPath(Project.Id, commonOpenFileDialog.FileName);
+
+                Project.AddPath(folder);
+                Folders.Add(new PathListViewItem(folder, GetPathIcon(folder)));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"{e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
 
         }
         private void AddApp()
         {
             var dialogViewModel = new ApplicationDialogViewModel();
-            if (dialogViewModel.ShowDialog() == true)
+            if (dialogViewModel.ShowDialog() == false)
+                return;
+
+            try
             {
                 var appPath = pathService.CreateApplicationPath(project.Id, dialogViewModel.AppPath);
 
                 Project.AddPath(appPath);
                 Apps.Add(new PathListViewItem(appPath, GetPathIcon(appPath)));
             }
+            catch(Exception e)
+            {
+                MessageBox.Show($"{e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            
         }
 
         private BitmapSource GetPathIcon(Path path)
@@ -475,7 +510,6 @@ namespace ProjectTracker.WPF.ViewModels
             Apps.Clear();
 
             var project = (Project)navigationContext.Parameters["project"];
-            var projectHasOpened = (bool)navigationContext.Parameters["projectHasOpened"];
 
             Project = project;
 
@@ -484,51 +518,79 @@ namespace ProjectTracker.WPF.ViewModels
             var currentDispatcher = Dispatcher.CurrentDispatcher;
             Task.Run(() =>
             {
-                if (!projectHasOpened)
+                Exception e = null;
+                MessageBoxResult result = MessageBoxResult.None;
+                do
                 {
-                    var todos = todoService.GetTodosByProjectId(project.Id);
-                    Project.AddTodoRange(todos);
+                    try
+                    {
+                        Project.ClearTodos();
+                        var todos = todoService.GetTodosByProjectId(project.Id);
+                        Project.AddTodoRange(todos);
+
+                        currentDispatcher.Invoke(new Action(() =>
+                        {
+                            TodoTreeViewItems.AddRange(project.Todos.ConvertToTreeViewItems());
+
+                            IsTodoTreeViewLoading = false;
+                            IsTodoTreeViewEmtpy = TodoTreeViewItems.Count == 0;
+                        }));
+
+                        e = null;
+                    }
+                    catch (Exception exception)
+                    {
+                        e = exception;
+                        result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+                    }
                 }
-
-                currentDispatcher.Invoke(new Action(() =>
-                {
-                    TodoTreeViewItems.AddRange(project.Todos.ConvertToTreeViewItems());
-
-                    IsTodoTreeViewLoading = false;
-                    IsTodoTreeViewEmtpy = TodoTreeViewItems.Count == 0;
-                }));
+                while (e != null && result == MessageBoxResult.OK);
             });
             Task.Run(() =>
             {
-                if (!projectHasOpened)
+                Exception e = null;
+                MessageBoxResult result = MessageBoxResult.None;
+                do
                 {
-                    var paths = pathService.GetPathsByProjectId(project.Id);
-                    Project.AddPathRange(paths);
-                }
+                    try
+                    {
+                        Project.ClearPaths();
+                        var paths = pathService.GetPathsByProjectId(project.Id);
+                        Project.AddPathRange(paths);
+                
+                        var webPageLinks = (from p in Project.Paths
+                                            where p.Type == "Webpage link"
+                                            select p).ToList();
 
-                var webPageLinks = (from p in Project.Paths
-                                    where p.Type == "Webpage link"
+                        var files = (from p in Project.Paths
+                                     where p.Type == "File"
+                                     select p).ToList();
+
+                        var folders = (from p in Project.Paths
+                                       where p.Type == "Folder"
+                                       select p).ToList();
+
+                        var apps = (from p in Project.Paths
+                                    where p.Type == "Application"
                                     select p).ToList();
 
-                var files = (from p in Project.Paths
-                             where p.Type == "File"
-                             select p).ToList();
+                        currentDispatcher.Invoke(new Action(() =>
+                        {
+                            WebpageLinks.AddRange(webPageLinks.ConvertToListViewItems(GetPathIcon));
+                            Files.AddRange(files.ConvertToListViewItems(GetPathIcon));
+                            Folders.AddRange(folders.ConvertToListViewItems(GetPathIcon));
+                            Apps.AddRange(apps.ConvertToListViewItems(GetPathIcon));
+                        }));
 
-                var folders = (from p in Project.Paths
-                               where p.Type == "Folder"
-                               select p).ToList();
-
-                var apps = (from p in Project.Paths
-                            where p.Type == "Application"
-                            select p).ToList();
-
-                currentDispatcher.Invoke(new Action(() =>
-                {
-                    WebpageLinks.AddRange(webPageLinks.ConvertToListViewItems(GetPathIcon));
-                    Files.AddRange(files.ConvertToListViewItems(GetPathIcon));
-                    Folders.AddRange(folders.ConvertToListViewItems(GetPathIcon));
-                    Apps.AddRange(apps.ConvertToListViewItems(GetPathIcon));
-                }));
+                        e = null;
+                    }
+                    catch (Exception exception)
+                    {
+                        e = exception;
+                        result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+                    }
+                }
+                while (e != null && result == MessageBoxResult.OK);
             });
         }
         public void OnNavigatedFrom(NavigationContext navigationContext)

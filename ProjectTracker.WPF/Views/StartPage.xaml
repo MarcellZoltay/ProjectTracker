@@ -12,8 +12,8 @@
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" MinWidth="300" />
-            <ColumnDefinition Width="*" MinWidth="300" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -37,7 +37,9 @@
                     <ListView x:Name="lvProjects" ItemsSource="{Binding Projects}"
                               SelectedItem="{Binding SelectedProject}"
                               BorderThickness="0" Background="Transparent"
-                              MouseDown="LvProjects_MouseDown">
+                              MouseDown="LvProjects_MouseDown"
+                              HorizontalContentAlignment="Stretch"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
                         <ListView.Resources>
                             <ContextMenu x:Key="ItemContextMenu">
@@ -61,7 +63,8 @@
                         
                         <ListView.ItemTemplate>
                             <DataTemplate x:Name="projectItem">
-                                <TextBlock Text="{Binding Title}" Margin="0 3"/>
+                                <TextBlock Text="{Binding Title}" Margin="0 3"
+                                           TextWrapping="WrapWithOverflow"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
 
