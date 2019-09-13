@@ -1,4 +1,5 @@
-﻿using ProjectTracker.BLL.Models;
+﻿using Prism.Mvvm;
+using ProjectTracker.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ProjectTracker.WPF.HelperClasses
 {
-    public class ProjectExpandable : Bindable
+    public class ProjectExpandable : BindableBase
     {
         public Project Project { get; }
         public TreeViewItemsObservableCollection Todos { get; }
@@ -23,8 +24,15 @@ namespace ProjectTracker.WPF.HelperClasses
         public ProjectExpandable(Project project)
         {
             Project = project;
+            project.PropertyChanged += Project_PropertyChanged;
+
             Todos = new TreeViewItemsObservableCollection();
             Todos.AddRange(project.Todos.ConvertToTreeViewItems());
+        }
+
+        private void Project_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e);
         }
 
         public void RefreshTodos()

@@ -14,7 +14,7 @@ namespace ProjectTracker.BLL.Models
         public string Title
         {
             get { return title; }
-            set { SetProperty(ref title, value); }
+            set { SetProperty(ref title, value, nameof(Title)); }
         }
 
         public List<Todo> Todos { get; }

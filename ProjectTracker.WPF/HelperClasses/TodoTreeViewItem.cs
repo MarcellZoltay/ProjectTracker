@@ -31,11 +31,10 @@ namespace ProjectTracker.WPF.HelperClasses
 
         public TodoTreeViewItem(Todo todo)
         {
-            Children = new TreeViewItemsObservableCollection();
-
             Todo = todo;
             Todo.PropertyChanged += Todo_PropertyChanged;
 
+            Children = new TreeViewItemsObservableCollection();
             Children.AddRange(todo.Children.ConvertToTreeViewItems());
         }
 
