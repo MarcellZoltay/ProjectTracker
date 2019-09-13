@@ -31,6 +31,13 @@ namespace ProjectTracker.BLL.Services.Implementations
             foreach (var item in projectEntities)
             {
                 var project = ConvertToModel(item);
+
+                var todos = todoService.GetTodosByProjectId(project.Id);
+                project.AddTodoRange(todos);
+
+                var paths = pathService.GetPathsByProjectId(project.Id);
+                project.AddPathRange(paths);
+
                 projects.Add(project);
             }
 

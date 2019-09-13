@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converter="clr-namespace:StatisticMaker.WPF.Converters"
-             xmlns:prism="http://prismlibrary.com/"             
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
@@ -18,6 +19,15 @@
         <Image x:Key="addIconApps" Source="../Icons/add-icon.png" />
         <Image x:Key="addIconTodos" Source="../Icons/add-icon.png" />
         <Image x:Key="addIconTodos2" Source="../Icons/add-icon.png" />
+
+        <CollectionViewSource x:Key="SortedTodos" Source="{Binding TodoTreeViewItems}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Todo.IsInProgress" Direction="Descending"/>
+                <scm:SortDescription PropertyName="Todo.IsDone" Direction="Ascending" />
+                <scm:SortDescription PropertyName="Todo.Deadline" />
+                <scm:SortDescription PropertyName="Todo.Text" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
     
     <Grid Background="Transparent"
@@ -70,7 +80,7 @@
 
                 <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
                     <TreeView x:Name="tvTodos"
-                              ItemsSource="{Binding TodoTreeViewItems}"
+                              ItemsSource="{Binding Source={StaticResource SortedTodos}}"
                               BorderThickness="0" Background="Transparent"
                               MouseDown="TvTodos_MouseDown">
 
@@ -168,10 +178,6 @@
                     </TreeView>
                 </Border>
 
-                <Label Grid.Row="1"
-                       Content="Loading..." 
-                       VerticalAlignment="Center" HorizontalAlignment="Center"
-                       Visibility="{Binding IsTodoTreeViewLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <StackPanel Grid.Row="1"
                             Orientation="Horizontal"
                             HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -227,27 +233,21 @@
                     <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
                         <ListView x:Name="lvWebpageLinks" ItemsSource="{Binding WebpageLinks}"
                                   SelectedItem="{Binding SelectedWebpageLinkPath}"
-                                  BorderThickness="0" Background="Transparent">
-
-                            <ListView.InputBindings>
-                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvWebpageLinks, Path=SelectedItem}"/>
-                            </ListView.InputBindings>
+                                  BorderThickness="0" Background="Transparent"
+                                  KeyDown="LvWebpageLinks_KeyDown">
 
                             <ListView.Resources>
                                 <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenWebpageLinkCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Open" Click="LvWebpageLinks_OpenContextMenuItem_Click" />
                                     <Separator/>
-                                    <MenuItem Header="Delete"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Delete" Click="LvWebpageLinks_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
                             
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 
@@ -303,27 +303,21 @@
                     <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
                         <ListView x:Name="lvFiles" ItemsSource="{Binding Files}"
                                   SelectedItem="{Binding SelectedFilePath}"
-                                  BorderThickness="0" Background="Transparent">
+                                  BorderThickness="0" Background="Transparent"
+                                  KeyDown="LvFiles_KeyDown">
 
-                            <ListView.InputBindings>
-                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvFiles, Path=SelectedItem}"/>
-                            </ListView.InputBindings>
-                            
                             <ListView.Resources>
                                 <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenPathCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Open" Click="LvFiles_OpenContextMenuItem_Click" />
                                     <Separator/>
-                                    <MenuItem Header="Delete"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Delete" Click="LvFiles_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
                             
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 
@@ -379,27 +373,21 @@
                     <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
                         <ListView x:Name="lvFolders" ItemsSource="{Binding Folders}"
                                   SelectedItem="{Binding SelectedFolderPath}"
-                                  BorderThickness="0" Background="Transparent">
+                                  BorderThickness="0" Background="Transparent"
+                                  KeyDown="LvFolders_KeyDown">
 
-                            <ListView.InputBindings>
-                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvFolders, Path=SelectedItem}"/>
-                            </ListView.InputBindings>
-                            
                             <ListView.Resources>
                                 <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenPathCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Open" Click="LvFolders_OpenContextMenuItem_Click" />
                                     <Separator/>
-                                    <MenuItem Header="Delete"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Delete" Click="LvFolders_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
                             
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 
@@ -455,27 +443,21 @@
                     <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
                         <ListView x:Name="lvApps" ItemsSource="{Binding Apps}"
                                   SelectedItem="{Binding SelectedAppPath}"
-                                  BorderThickness="0" Background="Transparent">
+                                  BorderThickness="0" Background="Transparent"
+                                  KeyDown="LvApps_KeyDown">
 
-                            <ListView.InputBindings>
-                                <KeyBinding Key="Delete" Command="{Binding DeletePathCommand}" CommandParameter="{Binding ElementName=lvApps, Path=SelectedItem}"/>
-                            </ListView.InputBindings>
-                            
                             <ListView.Resources>
                                 <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenPathCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Open" Click="LvApps_OpenContextMenuItem_Click" />
                                     <Separator/>
-                                    <MenuItem Header="Delete"
-                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeletePathCommand}" 
-                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Delete" Click="LvApps_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
                             
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
                                 </Style>
                             </ListView.ItemContainerStyle>
 

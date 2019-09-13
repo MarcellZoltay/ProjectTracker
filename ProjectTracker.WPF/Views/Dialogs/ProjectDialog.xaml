@@ -37,7 +37,7 @@
             <Label Content="Title" />
             <TextBox x:Name="tbTitle"
                      Text="{Binding ProjectTitle, UpdateSourceTrigger=PropertyChanged}"
-                     MaxLength="50"/>
+                     MaxLength="100"/>
         </StackPanel>
     </DockPanel>
 

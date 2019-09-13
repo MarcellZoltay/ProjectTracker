@@ -54,6 +54,16 @@ namespace ProjectTracker.BLL.Models
         {
             Paths.Remove(path);
         }
+
+        public void ClearTodos()
+        {
+            Todos.Clear();
+        }
+
+        public void ClearPaths()
+        {
+            Paths.Clear();
+        }
     }
 
 }

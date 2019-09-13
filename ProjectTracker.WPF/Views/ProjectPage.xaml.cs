@@ -1,4 +1,5 @@
 ﻿using ProjectTracker.WPF.HelperClasses;
+using ProjectTracker.WPF.HelperInterfaces;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -55,5 +56,86 @@ namespace ProjectTracker.WPF.Views
             lvFolders.UnselectAll();
             lvApps.UnselectAll();
         }
+
+        private void LvWebpageLinks_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(e.Key == System.Windows.Input.Key.Enter)
+            {
+                ((IProjectPageViewModel)DataContext).OpenWebpageLink(lvWebpageLinks.SelectedItems);
+            }
+            else if(e.Key == System.Windows.Input.Key.Delete)
+            {
+                ((IProjectPageViewModel)DataContext).DeletePaths(lvWebpageLinks.SelectedItems);
+            }
+        }
+        private void LvWebpageLinks_OpenContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).OpenWebpageLink(lvWebpageLinks.SelectedItems);
+        }
+        private void LvWebpageLinks_DeleteContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).DeletePaths(lvWebpageLinks.SelectedItems);
+        }
+
+        private void LvFiles_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                ((IProjectPageViewModel)DataContext).OpenPaths(lvFiles.SelectedItems);
+            }
+            else if (e.Key == System.Windows.Input.Key.Delete)
+            {
+                ((IProjectPageViewModel)DataContext).DeletePaths(lvFiles.SelectedItems);
+            }
+        }
+        private void LvFiles_OpenContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).OpenPaths(lvFiles.SelectedItems);
+        }
+        private void LvFiles_DeleteContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).DeletePaths(lvFiles.SelectedItems);
+        }
+
+        private void LvFolders_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                ((IProjectPageViewModel)DataContext).OpenPaths(lvFolders.SelectedItems);
+            }
+            else if (e.Key == System.Windows.Input.Key.Delete)
+            {
+                ((IProjectPageViewModel)DataContext).DeletePaths(lvFolders.SelectedItems);
+            }
+        }
+        private void LvFolders_OpenContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).OpenPaths(lvFolders.SelectedItems);
+        }
+        private void LvFolders_DeleteContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).DeletePaths(lvFolders.SelectedItems);
+        }
+
+        private void LvApps_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                ((IProjectPageViewModel)DataContext).OpenPaths(lvApps.SelectedItems);
+            }
+            else if (e.Key == System.Windows.Input.Key.Delete)
+            {
+                ((IProjectPageViewModel)DataContext).DeletePaths(lvApps.SelectedItems);
+            }
+        }
+        private void LvApps_OpenContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).OpenPaths(lvApps.SelectedItems);
+        }
+        private void LvApps_DeleteContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ((IProjectPageViewModel)DataContext).DeletePaths(lvApps.SelectedItems);
+        }
+
     }
 }

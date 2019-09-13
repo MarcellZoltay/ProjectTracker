@@ -3,17 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converter="clr-namespace:StatisticMaker.WPF.Converters"
-             xmlns:prism="http://prismlibrary.com/"             
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
-    
-    <Grid>
+
+    <Grid Background="Transparent"
+          MouseDown="MainGrid_MouseDown">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" MinWidth="300" />
-            <ColumnDefinition Width="*" MinWidth="300" />
+            <ColumnDefinition Width="1*" MinWidth="300"/>
+            <ColumnDefinition Width="2*" MinWidth="600"/>
+            <ColumnDefinition Width="1*" MinWidth="300"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -37,8 +40,13 @@
                     <ListView x:Name="lvProjects" ItemsSource="{Binding Projects}"
                               SelectedItem="{Binding SelectedProject}"
                               BorderThickness="0" Background="Transparent"
-                              MouseDown="LvProjects_MouseDown">
+                              HorizontalContentAlignment="Stretch"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
+                        <ListView.InputBindings>
+                            <KeyBinding Key="Delete" Command="{Binding DeleteProjectCommand}" CommandParameter="{Binding ElementName=lvProjects, Path=SelectedItem}"/>
+                        </ListView.InputBindings>
+                        
                         <ListView.Resources>
                             <ContextMenu x:Key="ItemContextMenu">
                                 <MenuItem Header="Open"
@@ -58,10 +66,11 @@
                                 <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
                             </Style>
                         </ListView.ItemContainerStyle>
-                        
+
                         <ListView.ItemTemplate>
-                            <DataTemplate x:Name="projectItem">
-                                <TextBlock Text="{Binding Title}" Margin="0 3"/>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Title}" Margin="0 3"
+                                           TextWrapping="WrapWithOverflow"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
 
@@ -85,6 +94,165 @@
                             Command="{Binding CreateProjectCommand}"/>
                     <Label Content="Create new project" VerticalAlignment="Center"/>
                 </StackPanel>
+            </Grid>
+        </DockPanel>
+
+        <DockPanel Grid.Column="1"
+                   Margin="10 10 10 53">
+            <Label DockPanel.Dock="Top"
+                   Content="Todos" FontSize="24" FontWeight="SemiBold"
+                   Margin="10 5" />
+
+            <Grid>
+                <Border BorderThickness="1" BorderBrush="Black" CornerRadius="3"
+                        Margin="10 0 10 0">
+                    <ListView x:Name="lvProjectTodos" ItemsSource="{Binding ProjectExpandables}"
+                              BorderThickness="0" Background="Transparent">
+
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                            <Expander x:Name="expTodos" IsExpanded="{Binding IsExpanded}" Margin="0 1.5">
+                                                <Expander.Resources>
+                                                    <CollectionViewSource x:Key="SortedTodos" Source="{Binding Todos}">
+                                                        <CollectionViewSource.SortDescriptions>
+                                                            <scm:SortDescription PropertyName="Todo.IsInProgress" Direction="Descending"/>
+                                                            <scm:SortDescription PropertyName="Todo.IsDone" Direction="Ascending" />
+                                                            <scm:SortDescription PropertyName="Todo.Deadline" />
+                                                            <scm:SortDescription PropertyName="Todo.Text" />
+                                                        </CollectionViewSource.SortDescriptions>
+                                                    </CollectionViewSource>
+                                                </Expander.Resources>
+                                                
+                                                <Expander.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock FontWeight="SemiBold" Text="{Binding Path=Project.Title}" Margin="5 0 0 0"/>
+                                                        <TextBlock FontWeight="SemiBold" Text="{Binding Path=Todos.Count, StringFormat=' ({0})'}"/>
+                                                    </StackPanel>
+                                                </Expander.Header>
+                                                <Expander.Content>
+                                                    <TreeView x:Name="tvTodos"
+                                                              ItemsSource="{Binding Source={StaticResource SortedTodos}}"
+                                                              BorderThickness="0" Background="Transparent"
+                                                              MouseDown="TvTodos_MouseDown"
+                                                              PreviewMouseWheel="TvTodos_PreviewMouseWheel">
+
+                                                        <TreeView.Resources>
+                                                            <ContextMenu x:Key="ItemContextMenu">
+                                                                <MenuItem Header="In progress"
+                                                                          IsCheckable="True"
+                                                                          IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem.Todo.IsInProgress}"
+                                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.IsInProgressClickedCommand}" 
+                                                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                                                                <Separator/>
+                                                                <MenuItem Header="Edit"
+                                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.EditTodoCommand}" 
+                                                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=SelectedItem}"/>
+                                                            </ContextMenu>
+
+                                                            <Style TargetType="{x:Type TextBlock}" x:Key="todoProgressStyle">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Todo.IsDone}" Value="true">
+                                                                        <Setter Property="Foreground">
+                                                                            <Setter.Value>
+                                                                                <SolidColorBrush Color="Green"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Todo.IsInProgress}" Value="true">
+                                                                        <Setter Property="Foreground">
+                                                                            <Setter.Value>
+                                                                                <SolidColorBrush Color="Orange"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TreeView.Resources>
+
+                                                        <TreeView.ItemTemplate>
+                                                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                                                <StackPanel Orientation="Horizontal"
+                                                                            Margin="0 3" Height="20">
+                                                                    <CheckBox IsChecked="{Binding Todo.IsDone}"
+                                                                              Margin="0 0 5 0"
+                                                                              VerticalAlignment="Center"
+                                                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.IsDoneClickedCommand}" 
+                                                                              CommandParameter="{Binding Todo}"/>
+                                                                    <TextBlock VerticalAlignment="Center" Style="{StaticResource todoProgressStyle}">
+                                                                        <Run Text="{Binding Todo.Text}" />
+                                                                        <Run>
+                                                                            <Run.Style>
+                                                                                <Style TargetType="Run">
+                                                                                    <Style.Setters>
+                                                                                        <Setter Property="Text" Value=" - "/>
+                                                                                    </Style.Setters>
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding Todo.Deadline}" Value="{x:Null}">
+                                                                                            <Setter Property="Text" Value=""/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </Run.Style>
+                                                                        </Run>
+                                                                        <Run Text="{Binding Todo.Deadline, StringFormat=yyyy.MM.dd.}"
+                                                                             TextDecorations="Underline" FontWeight="Bold"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                        </TreeView.ItemTemplate>
+
+                                                        <TreeView.ItemContainerStyle>
+                                                            <Style TargetType="{x:Type TreeViewItem}" >
+                                                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                                                                <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                                                            </Style>
+                                                        </TreeView.ItemContainerStyle>
+                                                    </TreeView>
+                                                </Expander.Content>
+                                            </Expander>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=Todos.Count}" Value="0">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                                    <Expander x:Name="expTodos" IsExpanded="False" Margin="0 1.5">
+                                                        <Expander.Header>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock FontWeight="SemiBold" Text="{Binding Path=Project.Title}" Margin="5 0 0 0"/>
+                                                                <TextBlock FontWeight="SemiBold" Text="{Binding Path=Todos.Count, StringFormat=' ({0})'}"/>
+                                                            </StackPanel>
+                                                        </Expander.Header>
+                                                        <Expander.Content>
+                                                            <TextBlock Text="This project doesn't contain todos." 
+                                                                       Margin="3" HorizontalAlignment="Center"
+                                                                       TextDecorations="Underline"/>
+                                                        </Expander.Content>
+                                                    </Expander>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </Border>
+                <Label Content="Loading..." 
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </Grid>
 
         </DockPanel>
