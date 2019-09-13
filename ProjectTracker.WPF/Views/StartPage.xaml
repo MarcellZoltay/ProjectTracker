@@ -9,6 +9,17 @@
 
     <UserControl.Resources>
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+        <CollectionViewSource x:Key="SortedProjects" Source="{Binding Projects}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Title"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="SortedProjectExpandables" Source="{Binding ProjectExpandables}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Project.Title"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
 
     <Grid Background="Transparent"
@@ -37,7 +48,7 @@
             <Grid>
                 <Border BorderThickness="1" BorderBrush="Black" CornerRadius="3"
                         Margin="10 0 10 0">
-                    <ListView x:Name="lvProjects" ItemsSource="{Binding Projects}"
+                    <ListView x:Name="lvProjects" ItemsSource="{Binding Source={StaticResource SortedProjects}}"
                               SelectedItem="{Binding SelectedProject}"
                               BorderThickness="0" Background="Transparent"
                               HorizontalContentAlignment="Stretch"
@@ -106,7 +117,7 @@
             <Grid>
                 <Border BorderThickness="1" BorderBrush="Black" CornerRadius="3"
                         Margin="10 0 10 0">
-                    <ListView x:Name="lvProjectTodos" ItemsSource="{Binding ProjectExpandables}"
+                    <ListView x:Name="lvProjectTodos" ItemsSource="{Binding Source={StaticResource SortedProjectExpandables}}"
                               BorderThickness="0" Background="Transparent">
 
                         <ListView.ItemsPanel>

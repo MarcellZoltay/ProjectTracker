@@ -29,8 +29,8 @@ namespace ProjectTracker.WPF.ViewModels
         private IProjectService projectService;
         private ITodoService todoService;
 
-        public ObservableCollection<Project> Projects { get; }
-        public ObservableCollection<ProjectExpandable> ProjectExpandables { get; }
+        public ItemsChangeObservableCollection<Project> Projects { get; }
+        public ProjectExpandablesObservationCollection ProjectExpandables { get; }
 
         private Project selectedProject;
         public Project SelectedProject
@@ -69,8 +69,8 @@ namespace ProjectTracker.WPF.ViewModels
             RenameProjectCommand = new DelegateCommand<Project>(RenameProject);
             DeleteProjectCommand = new DelegateCommand<Project>(DeleteProject);
 
-            Projects = new ObservableCollection<Project>();
-            ProjectExpandables = new ObservableCollection<ProjectExpandable>();
+            Projects = new ItemsChangeObservableCollection<Project>();
+            ProjectExpandables = new ProjectExpandablesObservationCollection();
 
             this.projectService = projectService;
             this.todoService = todoService;

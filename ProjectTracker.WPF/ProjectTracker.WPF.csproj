@@ -84,6 +84,7 @@
     <Compile Include="HelperClasses\PathListViewItem.cs" />
     <Compile Include="HelperClasses\PathToOpen.cs" />
     <Compile Include="HelperClasses\ProjectExpandable.cs" />
+    <Compile Include="HelperClasses\ProjectExpandablesObservationCollection.cs" />
     <Compile Include="HelperClasses\ProjectHelper.cs" />
     <Compile Include="HelperClasses\TodoHelper.cs" />
     <Compile Include="HelperClasses\TodoTreeViewItem.cs" />
