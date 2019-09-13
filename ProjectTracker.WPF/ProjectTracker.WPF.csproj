@@ -79,12 +79,17 @@
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="HelperClasses\Icons.cs" />
+    <Compile Include="HelperClasses\ItemsChangeObservableCollection.cs" />
     <Compile Include="HelperClasses\PathHelper.cs" />
     <Compile Include="HelperClasses\PathListViewItem.cs" />
     <Compile Include="HelperClasses\PathToOpen.cs" />
+    <Compile Include="HelperClasses\ProjectExpandable.cs" />
+    <Compile Include="HelperClasses\ProjectHelper.cs" />
     <Compile Include="HelperClasses\TodoHelper.cs" />
     <Compile Include="HelperClasses\TodoTreeViewItem.cs" />
     <Compile Include="HelperClasses\TodoTreeViewItemHelper.cs" />
+    <Compile Include="HelperClasses\TreeViewItemsObservableCollection.cs" />
+    <Compile Include="HelperInterfaces\IProjectPageViewModel.cs" />
     <Compile Include="ViewModels\DialogViewModels\ApplicationDialogViewModel.cs" />
     <Compile Include="ViewModels\DialogViewModels\OpenProjectDialogViewModel.cs" />
     <Compile Include="ViewModels\DialogViewModels\ProjectDialogViewModel.cs" />

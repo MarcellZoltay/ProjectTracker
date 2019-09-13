@@ -6,8 +6,10 @@ using Prism.Regions;
 using ProjectTracker.BLL.Models;
 using ProjectTracker.BLL.Services.Interfaces;
 using ProjectTracker.WPF.HelperClasses;
+using ProjectTracker.WPF.HelperInterfaces;
 using ProjectTracker.WPF.ViewModels.DialogViewModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -19,7 +21,7 @@ using System.Windows.Threading;
 
 namespace ProjectTracker.WPF.ViewModels
 {
-    public class ProjectPageViewModel : BindableBase, INavigationAware
+    public class ProjectPageViewModel : BindableBase, INavigationAware, IProjectPageViewModel
     {
         private readonly IRegionManager regionManager;
         private ITodoService todoService;
@@ -40,16 +42,9 @@ namespace ProjectTracker.WPF.ViewModels
         public DelegateCommand<TodoTreeViewItem> EditTodoCommand { get; }
         public DelegateCommand<TodoTreeViewItem> DeleteTodoCommand { get; }
         public DelegateCommand<Todo> IsDoneClickedCommand { get; }
-        public DelegateCommand<TodoTreeViewItem> IsInProgressClickedCommand { get; }        
+        public DelegateCommand<TodoTreeViewItem> IsInProgressClickedCommand { get; }
 
-        public ObservableCollection<TodoTreeViewItem> TodoTreeViewItems { get; }
-
-        private bool isTodoTreeViewLoading;
-        public bool IsTodoTreeViewLoading
-        {
-            get { return isTodoTreeViewLoading; }
-            set { SetProperty(ref isTodoTreeViewLoading, value); }
-        }
+        public TreeViewItemsObservableCollection TodoTreeViewItems { get; }
 
         private bool isTodoTreeViewEmpty;
         public bool IsTodoTreeViewEmtpy
@@ -58,10 +53,8 @@ namespace ProjectTracker.WPF.ViewModels
             set { SetProperty(ref isTodoTreeViewEmpty, value); }
         }
 
-
         public DelegateCommand<PathListViewItem> OpenPathCommand { get; }
-        public DelegateCommand<PathListViewItem> DeletePathCommand { get; }
-
+        
         // Links
         public DelegateCommand AddWebpageLinkCommand { get; }
         public DelegateCommand<PathListViewItem> OpenWebpageLinkCommand { get; }
@@ -167,10 +160,9 @@ namespace ProjectTracker.WPF.ViewModels
             IsDoneClickedCommand = new DelegateCommand<Todo>(IsDoneClicked);
             IsInProgressClickedCommand = new DelegateCommand<TodoTreeViewItem>(IsInProgressClicked);
 
-            TodoTreeViewItems = new ObservableCollection<TodoTreeViewItem>();
+            TodoTreeViewItems = new TreeViewItemsObservableCollection();
 
             OpenPathCommand = new DelegateCommand<PathListViewItem>(OpenPath);
-            DeletePathCommand = new DelegateCommand<PathListViewItem>(DeletePath);
 
             AddWebpageLinkCommand = new DelegateCommand(AddWebpageLink);
             OpenWebpageLinkCommand = new DelegateCommand<PathListViewItem>(OpenWebpageLink);
@@ -188,7 +180,10 @@ namespace ProjectTracker.WPF.ViewModels
 
         private void BackToStartPageClick()
         {
-            regionManager.RequestNavigate("MainRegion", "StartPage");
+            var navigationParameters = new NavigationParameters();
+            navigationParameters.Add("project", Project);
+
+            regionManager.RequestNavigate("MainRegion", "StartPage", navigationParameters);
         }
 
         private void OpenProjectClicked(string type = null)
@@ -287,10 +282,9 @@ namespace ProjectTracker.WPF.ViewModels
             await todoService.UpdateTodoAsync(item.Todo);
         }
 
-
         private void OpenPath(PathListViewItem item)
         {
-            if(item != null)
+            if (item != null)
             {
                 try
                 {
@@ -302,26 +296,23 @@ namespace ProjectTracker.WPF.ViewModels
                 }
             }
         }
-        private async void DeletePath(PathListViewItem item)
+        public void OpenPaths(IList selectedItems)
         {
-            if (item == null)
-                return;
-
-            var result = MessageBox.Show($"Are you sure you want to delete this path?", "Delete path", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.OK)
+            foreach (var item in selectedItems)
             {
-                Project.RemovePath(item.Path);
+                var pathListViewItem = (PathListViewItem)item;
 
-                WebpageLinks.Remove(item);
-                Files.Remove(item);
-                Folders.Remove(item);
-                Apps.Remove(item);
-
-                await pathService.DeletePathAsync(item.Path);
+                try
+                {
+                    pathService.OpenPath(pathListViewItem.Path);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Path doesn't exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+               
             }
         }
-
         private void OpenWebpageLink(PathListViewItem item)
         {
             if (item != null)
@@ -329,7 +320,45 @@ namespace ProjectTracker.WPF.ViewModels
                 pathService.OpenWebpageLink(GetDefaultBrowserPath(), item.Path);
             }
         }
+        public void OpenWebpageLink(IList selectedItems)
+        {
+            foreach (var item in selectedItems)
+            {
+                var pathListViewItem = (PathListViewItem)item;
 
+                pathService.OpenWebpageLink(GetDefaultBrowserPath(), pathListViewItem.Path);
+            }
+        }
+        public async void DeletePaths(IList selectedItems)
+        {
+            if (selectedItems.Count == 0)
+                return;
+
+            var result = MessageBox.Show($"Are you sure you want to delete these paths?", "Delete paths", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (result != MessageBoxResult.OK)
+                return;
+
+            var items = new List<object>();
+            foreach (var item in selectedItems)
+            {
+                items.Add(item);
+            }
+
+            foreach (var item in items)
+            {
+                var pathListViewItem = (PathListViewItem)item;
+
+                Project.RemovePath(pathListViewItem.Path);
+
+                WebpageLinks.Remove(pathListViewItem);
+                Files.Remove(pathListViewItem);
+                Folders.Remove(pathListViewItem);
+                Apps.Remove(pathListViewItem);
+
+                await pathService.DeletePathAsync(pathListViewItem.Path);
+            }
+        }
+        
         private void AddWebpageLink()
         {
             var dialogViewModel = new WebpageDialogViewModel();
@@ -513,85 +542,31 @@ namespace ProjectTracker.WPF.ViewModels
 
             Project = project;
 
-            IsTodoTreeViewLoading = true;
+            TodoTreeViewItems.AddRange(project.Todos.ConvertToTreeViewItems());
 
-            var currentDispatcher = Dispatcher.CurrentDispatcher;
-            Task.Run(() =>
-            {
-                Exception e = null;
-                MessageBoxResult result = MessageBoxResult.None;
-                do
-                {
-                    try
-                    {
-                        Project.ClearTodos();
-                        var todos = todoService.GetTodosByProjectId(project.Id);
-                        Project.AddTodoRange(todos);
+            IsTodoTreeViewEmtpy = TodoTreeViewItems.Count == 0;
 
-                        currentDispatcher.Invoke(new Action(() =>
-                        {
-                            TodoTreeViewItems.AddRange(project.Todos.ConvertToTreeViewItems());
+            
+            var webPageLinks = (from p in Project.Paths
+                                where p.Type == "Webpage link"
+                                select p).ToList();
 
-                            IsTodoTreeViewLoading = false;
-                            IsTodoTreeViewEmtpy = TodoTreeViewItems.Count == 0;
-                        }));
+            var files = (from p in Project.Paths
+                         where p.Type == "File"
+                         select p).ToList();
 
-                        e = null;
-                    }
-                    catch (Exception exception)
-                    {
-                        e = exception;
-                        result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
-                    }
-                }
-                while (e != null && result == MessageBoxResult.OK);
-            });
-            Task.Run(() =>
-            {
-                Exception e = null;
-                MessageBoxResult result = MessageBoxResult.None;
-                do
-                {
-                    try
-                    {
-                        Project.ClearPaths();
-                        var paths = pathService.GetPathsByProjectId(project.Id);
-                        Project.AddPathRange(paths);
-                
-                        var webPageLinks = (from p in Project.Paths
-                                            where p.Type == "Webpage link"
-                                            select p).ToList();
+            var folders = (from p in Project.Paths
+                           where p.Type == "Folder"
+                           select p).ToList();
 
-                        var files = (from p in Project.Paths
-                                     where p.Type == "File"
-                                     select p).ToList();
+            var apps = (from p in Project.Paths
+                        where p.Type == "Application"
+                        select p).ToList();
 
-                        var folders = (from p in Project.Paths
-                                       where p.Type == "Folder"
-                                       select p).ToList();
-
-                        var apps = (from p in Project.Paths
-                                    where p.Type == "Application"
-                                    select p).ToList();
-
-                        currentDispatcher.Invoke(new Action(() =>
-                        {
-                            WebpageLinks.AddRange(webPageLinks.ConvertToListViewItems(GetPathIcon));
-                            Files.AddRange(files.ConvertToListViewItems(GetPathIcon));
-                            Folders.AddRange(folders.ConvertToListViewItems(GetPathIcon));
-                            Apps.AddRange(apps.ConvertToListViewItems(GetPathIcon));
-                        }));
-
-                        e = null;
-                    }
-                    catch (Exception exception)
-                    {
-                        e = exception;
-                        result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
-                    }
-                }
-                while (e != null && result == MessageBoxResult.OK);
-            });
+            WebpageLinks.AddRange(webPageLinks.ConvertToListViewItems(GetPathIcon));
+            Files.AddRange(files.ConvertToListViewItems(GetPathIcon));
+            Folders.AddRange(folders.ConvertToListViewItems(GetPathIcon));
+            Apps.AddRange(apps.ConvertToListViewItems(GetPathIcon));
         }
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {

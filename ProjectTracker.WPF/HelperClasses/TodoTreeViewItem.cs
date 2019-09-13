@@ -18,7 +18,7 @@ namespace ProjectTracker.WPF.HelperClasses
             set { SetProperty(ref isSelected, value); }
         }
 
-        private bool isExpanded = true;
+        private bool isExpanded;
         public bool IsExpanded
         {
             get { return isExpanded; }
@@ -27,15 +27,21 @@ namespace ProjectTracker.WPF.HelperClasses
 
         public Todo Todo { get; }
 
-        public ObservableCollection<TodoTreeViewItem> Children { get; }
+        public TreeViewItemsObservableCollection Children { get; }
 
         public TodoTreeViewItem(Todo todo)
         {
-            Children = new ObservableCollection<TodoTreeViewItem>();
+            Children = new TreeViewItemsObservableCollection();
 
             Todo = todo;
+            Todo.PropertyChanged += Todo_PropertyChanged;
 
             Children.AddRange(todo.Children.ConvertToTreeViewItems());
+        }
+
+        private void Todo_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e);
         }
 
         public void AddTodoTreeViewItem(TodoTreeViewItem todoTreeViewItem)
@@ -43,7 +49,7 @@ namespace ProjectTracker.WPF.HelperClasses
             Children.Add(todoTreeViewItem);
         }
 
-        internal void RemoveTodoTreeViewItem(TodoTreeViewItem item)
+        public void RemoveTodoTreeViewItem(TodoTreeViewItem item)
         {
             Children.Remove(item);
         }

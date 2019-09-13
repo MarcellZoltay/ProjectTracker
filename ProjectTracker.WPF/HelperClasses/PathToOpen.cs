@@ -20,7 +20,7 @@ namespace ProjectTracker.WPF.HelperClasses
 
         public BitmapSource Icon { get; set; }
 
-        public Path Path { get; private set; }
+        public Path Path { get; }
 
         public PathToOpen(Path path, BitmapSource icon)
         {

@@ -14,7 +14,7 @@ namespace ProjectTracker.BLL.Models
         public string Text
         {
             get { return text; }
-            set { SetProperty(ref text, value); }
+            set { SetProperty(ref text, value, nameof(Text)); }
         }
 
         private bool isInProgress;
@@ -23,7 +23,7 @@ namespace ProjectTracker.BLL.Models
             get { return isInProgress; }
             set
             {
-                SetProperty(ref isInProgress, value);
+                SetProperty(ref isInProgress, value, nameof(IsInProgress));
 
                 if (value == true)
                     IsDone = false;
@@ -36,7 +36,7 @@ namespace ProjectTracker.BLL.Models
             get { return isDone; }
             set
             {
-                SetProperty(ref isDone, value);
+                SetProperty(ref isDone, value, nameof(IsDone));
 
                 if(value == true)
                     IsInProgress = false;
@@ -47,7 +47,7 @@ namespace ProjectTracker.BLL.Models
         public DateTime? Deadline
         {
             get { return deadline; }
-            set { SetProperty(ref deadline, value); }
+            set { SetProperty(ref deadline, value, nameof(Deadline)); }
         }
 
         public List<Todo> Children { get; }

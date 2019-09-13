@@ -17,7 +17,7 @@ namespace ProjectTracker.DAL.Services.Implementations
 
             using (var db = new ProjectTrackerContext())
             {
-                var query = (from t in db.Todos.Include("Project").Include("ParentTodo").AsNoTracking()
+                var query = (from t in db.Todos.AsNoTracking()
                              where t.ProjectID == projectId
                              select t).ToList();
 
