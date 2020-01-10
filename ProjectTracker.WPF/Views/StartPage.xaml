@@ -20,6 +20,31 @@
                 <scm:SortDescription PropertyName="Project.Title"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+        <CollectionViewSource x:Key="SortedTodos" Source="{Binding ProjectExpandables}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Project.Title"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+
+        <Style TargetType="Border">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="3"/>
+        </Style>
+        <Style x:Key="labelTItle" TargetType="Label">
+            <Setter Property="Margin" Value="10 5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="24"/>
+        </Style>
+        <Style TargetType="ListView">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style x:Key="labelLoading" TargetType="Label">
+            <Setter Property="Content" Value="Loading..."/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="Transparent"
@@ -36,8 +61,8 @@
 
         <DockPanel Margin="10">
             <Label DockPanel.Dock="Top"
-                   Content="Projects" FontSize="24" FontWeight="SemiBold"
-                   Margin="10 5" />
+                   Content="Projects"
+                   Style="{StaticResource labelTItle}"/>
 
             <Button DockPanel.Dock="Bottom"
                     Content="Create new project" 
@@ -46,11 +71,10 @@
                     Command="{Binding CreateProjectCommand}"/>
 
             <Grid>
-                <Border BorderThickness="1" BorderBrush="Black" CornerRadius="3"
-                        Margin="10 0 10 0">
-                    <ListView x:Name="lvProjects" ItemsSource="{Binding Source={StaticResource SortedProjects}}"
+                <Border Margin="10 0 10 0">
+                    <ListView x:Name="lvProjects" 
+                              ItemsSource="{Binding Source={StaticResource SortedProjects}}"
                               SelectedItem="{Binding SelectedProject}"
-                              BorderThickness="0" Background="Transparent"
                               HorizontalContentAlignment="Stretch"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
@@ -93,9 +117,10 @@
                         </i:Interaction.Triggers>
                     </ListView>
                 </Border>
-                <Label Content="Loading..." 
-                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                
+                <Label Style="{StaticResource labelLoading}"
                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center" VerticalAlignment="Center"
                             Visibility="{Binding IsListEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -111,14 +136,13 @@
         <DockPanel Grid.Column="1"
                    Margin="10 10 10 53">
             <Label DockPanel.Dock="Top"
-                   Content="Todos" FontSize="24" FontWeight="SemiBold"
-                   Margin="10 5" />
+                   Content="Todos"
+                   Style="{StaticResource labelTItle}"/>
 
             <Grid>
-                <Border BorderThickness="1" BorderBrush="Black" CornerRadius="3"
-                        Margin="10 0 10 0">
-                    <ListView x:Name="lvProjectTodos" ItemsSource="{Binding Source={StaticResource SortedProjectExpandables}}"
-                              BorderThickness="0" Background="Transparent">
+                <Border Margin="10 0 10 0">
+                    <ListView x:Name="lvProjectTodos" 
+                              ItemsSource="{Binding Source={StaticResource SortedProjectExpandables}}">
 
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -261,11 +285,10 @@
                         </ListView.ItemContainerStyle>
                     </ListView>
                 </Border>
-                <Label Content="Loading..." 
-                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                
+                <Label Style="{StaticResource labelLoading}"
                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </Grid>
-
         </DockPanel>
     </Grid>
     

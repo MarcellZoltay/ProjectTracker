@@ -18,14 +18,20 @@ namespace ProjectTracker.BLL.Models
         }
 
         public List<Todo> Todos { get; }
-        public List<Path> Paths { get; }
+        public List<Path> WebpageLinks { get; }
+        public List<Path> FilePaths { get; }
+        public List<Path> FolderPaths { get; }
+        public List<Path> ApplicationPaths { get; }
 
         public Project(string title)
         {
             Title = title;
 
             Todos = new List<Todo>();
-            Paths = new List<Path>();
+            WebpageLinks = new List<Path>();
+            FilePaths = new List<Path>();
+            FolderPaths = new List<Path>();
+            ApplicationPaths = new List<Path>();
         }
 
         public void AddTodo(Todo todo)
@@ -41,28 +47,48 @@ namespace ProjectTracker.BLL.Models
             Todos.Remove(todo);
         }
 
-        public void AddPath(Path path)
+        public void AddWebpageLink(Path webpageLink)
         {
-            Paths.Add(path);
+            WebpageLinks.Add(webpageLink);
         }
-        public void AddPathRange(IEnumerable<Path> paths)
+        public void AddWebpageLinkRange(IEnumerable<Path> webpageLinks)
         {
-            Paths.AddRange(paths);
+            WebpageLinks.AddRange(webpageLinks);
+        }
+
+        public void AddFilePath(Path filePath)
+        {
+            FilePaths.Add(filePath);
+        }
+        public void AddFilePathRange(IEnumerable<Path> filePaths)
+        {
+            FilePaths.AddRange(filePaths);
+        }
+
+        public void AddFolderPath(Path folderPath)
+        {
+            FolderPaths.Add(folderPath);
+        }
+        public void AddFolderPathRange(IEnumerable<Path> folderPaths)
+        {
+            FolderPaths.AddRange(folderPaths);
+        }
+
+        public void AddApplicationPath(Path applicationPath)
+        {
+            ApplicationPaths.Add(applicationPath);
+        }
+        public void AddApplicationPathRange(IEnumerable<Path> applicationPaths)
+        {
+            ApplicationPaths.AddRange(applicationPaths);
         }
 
         public void RemovePath(Path path)
         {
-            Paths.Remove(path);
-        }
-
-        public void ClearTodos()
-        {
-            Todos.Clear();
-        }
-
-        public void ClearPaths()
-        {
-            Paths.Clear();
+            WebpageLinks.Remove(path);
+            FilePaths.Remove(path);
+            FolderPaths.Remove(path);
+            ApplicationPaths.Remove(path);
         }
     }
 

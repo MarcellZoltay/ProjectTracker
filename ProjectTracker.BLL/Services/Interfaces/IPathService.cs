@@ -9,7 +9,10 @@ namespace ProjectTracker.BLL.Services.Interfaces
 {
     public interface IPathService
     {
-        List<Path> GetPathsByProjectId(int projectId);
+        List<Path> GetWebpageLinksByProjectId(int projectId);
+        List<Path> GetFilePathsByProjectId(int projectId);
+        List<Path> GetFolderPathsByProjectId(int projectId);
+        List<Path> GetApplicationPathsByProjectId(int projectId);
         Path CreateWebpageLinkPath(int projectId, string address);
         Path CreateFilePath(int projectId, string address);
         Path CreateFolderPath(int projectId, string address);
@@ -18,6 +21,7 @@ namespace ProjectTracker.BLL.Services.Interfaces
         Task DeletePathAsync(Path pathToDelete);
         void DeletePathsByProjectId(int projectId);
         void OpenPath(Path path);
-        void OpenWebpageLink(string browserPath, Path path);
+        void OpenWebpageLink(Path path);
+        string GetDefaultBrowserPath();
     }
 }

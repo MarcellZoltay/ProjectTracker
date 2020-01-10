@@ -61,7 +61,7 @@ namespace ProjectTracker.WPF.Views
         {
             if(e.Key == System.Windows.Input.Key.Enter)
             {
-                ((IProjectPageViewModel)DataContext).OpenWebpageLink(lvWebpageLinks.SelectedItems);
+                ((IProjectPageViewModel)DataContext).OpenWebpageLinks(lvWebpageLinks.SelectedItems);
             }
             else if(e.Key == System.Windows.Input.Key.Delete)
             {
@@ -70,7 +70,7 @@ namespace ProjectTracker.WPF.Views
         }
         private void LvWebpageLinks_OpenContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            ((IProjectPageViewModel)DataContext).OpenWebpageLink(lvWebpageLinks.SelectedItems);
+            ((IProjectPageViewModel)DataContext).OpenWebpageLinks(lvWebpageLinks.SelectedItems);
         }
         private void LvWebpageLinks_DeleteContextMenuItem_Click(object sender, RoutedEventArgs e)
         {

@@ -35,8 +35,17 @@ namespace ProjectTracker.BLL.Services.Implementations
                 var todos = todoService.GetTodosByProjectId(project.Id);
                 project.AddTodoRange(todos);
 
-                var paths = pathService.GetPathsByProjectId(project.Id);
-                project.AddPathRange(paths);
+                var webpageLinks = pathService.GetWebpageLinksByProjectId(project.Id);
+                project.AddWebpageLinkRange(webpageLinks);
+
+                var filePaths = pathService.GetFilePathsByProjectId(project.Id);
+                project.AddFilePathRange(filePaths);
+
+                var folderPaths = pathService.GetFolderPathsByProjectId(project.Id);
+                project.AddFolderPathRange(folderPaths);
+
+                var applicaiontPaths = pathService.GetApplicationPathsByProjectId(project.Id);
+                project.AddApplicationPathRange(applicaiontPaths);
 
                 projects.Add(project);
             }

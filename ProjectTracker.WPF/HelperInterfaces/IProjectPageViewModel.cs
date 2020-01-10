@@ -10,7 +10,7 @@ namespace ProjectTracker.WPF.HelperInterfaces
     public interface IProjectPageViewModel
     {
         void OpenPaths(IList selectedItems);
-        void OpenWebpageLink(IList selectedItems);
+        void OpenWebpageLinks(IList selectedItems);
         void DeletePaths(IList selectedItems);
     }
 }
