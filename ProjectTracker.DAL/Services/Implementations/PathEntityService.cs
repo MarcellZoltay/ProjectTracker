@@ -11,13 +11,44 @@ namespace ProjectTracker.DAL.Services.Implementations
 {
     public class PathEntityService : IPathEntityService
     {
-        public List<PathEntity> GetPathsByProjectId(int projectId)
+        private const string WebPageLink = "Webpage link";
+        private const string File = "File";
+        private const string Folder = "Folder";
+        private const string Application = "Application";
+
+        public List<PathEntity> GetWebpageLinksByProjectId(int projectId)
         {
             using (var db = new ProjectTrackerContext())
             {
                 return (from p in db.Paths.Include("PathType").AsNoTracking()
-                        where p.ProjectID == projectId
-                        orderby p.PathTypeID
+                        where p.ProjectID == projectId && p.PathType.Name == WebPageLink
+                        select p).ToList();
+            }
+        }
+        public List<PathEntity> GetFilePathsByProjectId(int projectId)
+        {
+            using (var db = new ProjectTrackerContext())
+            {
+                return (from p in db.Paths.Include("PathType").AsNoTracking()
+                        where p.ProjectID == projectId && p.PathType.Name == File
+                        select p).ToList();
+            }
+        }
+        public List<PathEntity> GetFolderPathsByProjectId(int projectId)
+        {
+            using (var db = new ProjectTrackerContext())
+            {
+                return (from p in db.Paths.Include("PathType").AsNoTracking()
+                        where p.ProjectID == projectId && p.PathType.Name == Folder
+                        select p).ToList();
+            }
+        }
+        public List<PathEntity> GetApplicationPathsByProjectId(int projectId)
+        {
+            using (var db = new ProjectTrackerContext())
+            {
+                return (from p in db.Paths.Include("PathType").AsNoTracking()
+                        where p.ProjectID == projectId && p.PathType.Name == Application
                         select p).ToList();
             }
         }
@@ -27,7 +58,7 @@ namespace ProjectTracker.DAL.Services.Implementations
             using (var db = new ProjectTrackerContext())
             {
                 var type = from t in db.PathTypes
-                           where t.Name == "Webpage link"
+                           where t.Name == WebPageLink
                            select t;
 
                 webPageLinkPath.PathType = type.First();
@@ -43,7 +74,7 @@ namespace ProjectTracker.DAL.Services.Implementations
             using (var db = new ProjectTrackerContext())
             {
                 var type = from t in db.PathTypes
-                           where t.Name == "File"
+                           where t.Name == File
                            select t;
 
                 filePath.PathType = type.First();
@@ -59,7 +90,7 @@ namespace ProjectTracker.DAL.Services.Implementations
             using (var db = new ProjectTrackerContext())
             {
                 var type = from t in db.PathTypes
-                           where t.Name == "Folder"
+                           where t.Name == Folder
                            select t;
 
                 folderPath.PathType = type.First();
@@ -75,7 +106,7 @@ namespace ProjectTracker.DAL.Services.Implementations
             using (var db = new ProjectTrackerContext())
             {
                 var type = from t in db.PathTypes
-                           where t.Name == "Application"
+                           where t.Name == Application
                            select t;
 
                 applicationPath.PathType = type.First();

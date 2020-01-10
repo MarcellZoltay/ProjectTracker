@@ -25,12 +25,6 @@ namespace ProjectTracker.WPF.Views.Dialogs
             InitializeComponent();
 
             DataContext = viewModel;
-            icPaths.ItemsSource = viewModel.Paths;
-
-            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(icPaths.ItemsSource);
-            PropertyGroupDescription groupDescription = new PropertyGroupDescription("Path.Type");
-            if (view.GroupDescriptions.Count == 0)
-                view.GroupDescriptions.Add(groupDescription);
         }
     }
 }

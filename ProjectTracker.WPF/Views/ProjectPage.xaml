@@ -29,7 +29,7 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
     </UserControl.Resources>
-    
+
     <Grid Background="Transparent"
           MouseDown="MainGrid_MouseDown">
         <Grid.RowDefinitions>
@@ -41,6 +41,34 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
+
+        <Grid.Resources>
+            <Style x:Key="outterBorder" TargetType="Border">
+                <Setter Property="BorderBrush" Value="Black"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="3"/>
+            </Style>
+            <Style x:Key="innerBorder" TargetType="Border">
+                <Setter Property="BorderBrush" Value="Black"/>
+                <Setter Property="BorderThickness" Value="0 0.5 0 0"/>
+            </Style>
+            <Style x:Key="labelTitle" TargetType="Label">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="5 0"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="20"/>
+            </Style>
+            <Style x:Key="btnBase" TargetType="Button">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="Height" Value="24"/>
+            </Style>
+            <Style x:Key="btnAdd" TargetType="Button" BasedOn="{StaticResource btnBase}">
+                <Setter Property="Margin" Value="5 0 10 0"/>
+                <Setter Property="Padding" Value="3"/>
+            </Style>
+        </Grid.Resources>
 
         <Border Grid.ColumnSpan="2" 
                 BorderThickness="0 1" BorderBrush="Black">
@@ -61,24 +89,24 @@
                 FontWeight="Bold" FontSize="14"/>
 
         <Border Grid.Row="2"
-                BorderThickness="1" BorderBrush="Black" CornerRadius="3"
-                Margin="20 0 20 20">
+                Margin="20 0 20 20"
+                Style="{StaticResource outterBorder}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" MinHeight="40" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Label HorizontalAlignment="Left" VerticalAlignment="Center"
-                       Content="TODOs" FontSize="20" FontWeight="SemiBold"
-                       Margin="5 0"/>
-                <Button HorizontalAlignment="Right" VerticalAlignment="Center"
-                        Content="{StaticResource addIconTodos}" FontSize="20" Height="24"
-                        Margin="10 0" Padding="3"
+                <Label Content="TODOs"
+                       Style="{StaticResource labelTitle}"/>
+                <Button Content="{StaticResource addIconTodos}"
+                        HorizontalAlignment="Right"
                         Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                        Style="{StaticResource btnAdd}"
                         Command="{Binding AddTodoCommand}"/>
 
-                <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
+                <Border Grid.Row="1"
+                        Style="{StaticResource innerBorder}">
                     <TreeView x:Name="tvTodos"
                               ItemsSource="{Binding Source={StaticResource SortedTodos}}"
                               BorderThickness="0" Background="Transparent"
@@ -87,7 +115,7 @@
                         <TreeView.InputBindings>
                             <KeyBinding Key="Delete" Command="{Binding DeleteTodoCommand}" CommandParameter="{Binding ElementName=tvTodos, Path=SelectedItem}"/>
                         </TreeView.InputBindings>
-                        
+
                         <TreeView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Add todo"
@@ -145,23 +173,23 @@
                                               Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}, Path=DataContext.IsDoneClickedCommand}" 
                                               CommandParameter="{Binding Todo}"/>
                                     <TextBlock VerticalAlignment="Center" Style="{StaticResource todoProgressStyle}">
-                                            <Run Text="{Binding Todo.Text}" />
-                                            <Run>
-                                                <Run.Style>
-                                                    <Style TargetType="Run">
-                                                        <Style.Setters>
-                                                            <Setter Property="Text" Value=" - "/>
-                                                        </Style.Setters>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Todo.Deadline}" Value="{x:Null}">
-                                                                <Setter Property="Text" Value=""/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Run.Style>
-                                            </Run>
-                                            <Run Text="{Binding Todo.Deadline, StringFormat=yyyy.MM.dd.}"
-                                                 TextDecorations="Underline"/>
+                                        <Run Text="{Binding Todo.Text}" />
+                                        <Run>
+                                            <Run.Style>
+                                                <Style TargetType="Run">
+                                                    <Style.Setters>
+                                                        <Setter Property="Text" Value=" - "/>
+                                                    </Style.Setters>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Todo.Deadline}" Value="{x:Null}">
+                                                            <Setter Property="Text" Value=""/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Run.Style>
+                                        </Run>
+                                        <Run Text="{Binding Todo.Deadline, StringFormat=yyyy.MM.dd.}"
+                                             TextDecorations="Underline"/>
                                     </TextBlock>
                                 </StackPanel>
                             </HierarchicalDataTemplate>
@@ -202,38 +230,47 @@
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
 
+            <Grid.Resources>
+                <Style x:Key="spTitle" TargetType="StackPanel">
+                    <Setter Property="Orientation" Value="Horizontal"/>
+                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                </Style>
+                <Style x:Key="lvPaths" TargetType="ListView">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+                <Style x:Key="btnOpen" TargetType="Button" BasedOn="{StaticResource btnBase}">
+                    <Setter Property="Padding" Value="2 2 0 0"/>
+                </Style>
+            </Grid.Resources>
+
             <Border Grid.Column="0" Grid.Row="0"
-                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
-                    Margin="0 0 10 10">
+                    Margin="0 0 10 10"
+                    Style="{StaticResource outterBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" MinHeight="40" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Margin="5 0"
-                           Content="Links" FontSize="20" FontWeight="SemiBold"/>
-                    <StackPanel Orientation="Horizontal" 
-                                HorizontalAlignment="Right"
-                                Margin="10 0">
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource openFolderIconLinks}" FontSize="20" Height="24"
-                                Padding="2 2 0 0"
+                    <Label Content="Links"
+                           Style="{StaticResource labelTitle}"/>
+                    <StackPanel Style="{StaticResource spTitle}">
+                        <Button Content="{StaticResource openFolderIconLinks}"
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Command="{Binding OpenProjectCommand}"
-                                CommandParameter="Webpage link"/>
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource addIconLinks}" FontSize="20" Height="24"
-                                Margin="5 0 0 0" Padding="3"
+                                Style="{StaticResource btnOpen}"
+                                Command="{Binding OpenWebpageLinksCommand}"/>
+                        <Button Content="{StaticResource addIconLinks}"
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Style="{StaticResource btnAdd}"
                                 Command="{Binding AddWebpageLinkCommand}"/>
                     </StackPanel>
 
-                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
+                    <Border Grid.Row="1" 
+                            Style="{StaticResource innerBorder}">
                         <ListView x:Name="lvWebpageLinks" ItemsSource="{Binding WebpageLinks}"
                                   SelectedItem="{Binding SelectedWebpageLinkPath}"
-                                  BorderThickness="0" Background="Transparent"
+                                  Style="{StaticResource lvPaths}"
                                   KeyDown="LvWebpageLinks_KeyDown">
 
                             <ListView.Resources>
@@ -243,7 +280,7 @@
                                     <MenuItem Header="Delete" Click="LvWebpageLinks_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
-                            
+
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
@@ -271,39 +308,34 @@
                     </Border>
                 </Grid>
             </Border>
-            
+
             <Border Grid.Column="0" Grid.Row="1"
-                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
-                    Margin="0 10 10 0">
+                    Margin="0 10 10 0"
+                    Style="{StaticResource outterBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" MinHeight="40" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Margin="5 0"
-                           Content="Files" FontSize="20" FontWeight="SemiBold"/>
-                    <StackPanel Orientation="Horizontal" 
-                                HorizontalAlignment="Right"
-                                Margin="10 0">
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource openFolderIconFiles}" FontSize="20" Height="24"
-                                Padding="2 2 0 0"
+                    <Label Content="Files"
+                           Style="{StaticResource labelTitle}"/>
+                    <StackPanel Style="{StaticResource spTitle}">
+                        <Button Content="{StaticResource openFolderIconFiles}"
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Command="{Binding OpenProjectCommand}"
-                                CommandParameter="File"/>
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource addIconFolders}" FontSize="20" Height="24"
-                                Margin="5 0 0 0" Padding="3"
+                                Style="{StaticResource btnOpen}"
+                                Command="{Binding OpenFilePathsCommand}"/>
+                        <Button Content="{StaticResource addIconFolders}" 
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Command="{Binding AddFileCommand}"/>
+                                Style="{StaticResource btnAdd}"
+                                Command="{Binding AddFilePathCommand}"/>
                     </StackPanel>
 
-                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
-                        <ListView x:Name="lvFiles" ItemsSource="{Binding Files}"
+                    <Border Grid.Row="1"
+                            Style="{StaticResource innerBorder}">
+                        <ListView x:Name="lvFiles" ItemsSource="{Binding FilePaths}"
                                   SelectedItem="{Binding SelectedFilePath}"
-                                  BorderThickness="0" Background="Transparent"
+                                  Style="{StaticResource lvPaths}"
                                   KeyDown="LvFiles_KeyDown">
 
                             <ListView.Resources>
@@ -313,7 +345,7 @@
                                     <MenuItem Header="Delete" Click="LvFiles_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
-                            
+
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
@@ -343,37 +375,32 @@
             </Border>
 
             <Border Grid.Column="1" Grid.Row="0"
-                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
-                    Margin="10 0 0 10">
+                    Margin="10 0 0 10"
+                    Style="{StaticResource outterBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" MinHeight="40" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Margin="5 0"
-                           Content="Folders" FontSize="20" FontWeight="SemiBold"/>
-                    <StackPanel Orientation="Horizontal" 
-                                HorizontalAlignment="Right"
-                                Margin="10 0">
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource openFolderIconFolders}" FontSize="20" Height="24"
-                                Padding="2 2 0 0"
+                    <Label Content="Folders"
+                           Style="{StaticResource labelTitle}"/>
+                    <StackPanel Style="{StaticResource spTitle}">
+                        <Button Content="{StaticResource openFolderIconFolders}"
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Command="{Binding OpenProjectCommand}"
-                                CommandParameter="Folder"/>
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource addIconFiles}" FontSize="20" Height="24"
-                                Margin="5 0 0 0" Padding="3"
+                                Style="{StaticResource btnOpen}"
+                                Command="{Binding OpenFolderPathsCommand}"/>
+                        <Button Content="{StaticResource addIconFiles}"
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Command="{Binding AddFolderCommand}"/>
+                                Style="{StaticResource btnAdd}"
+                                Command="{Binding AddFolderPathCommand}"/>
                     </StackPanel>
 
-                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
-                        <ListView x:Name="lvFolders" ItemsSource="{Binding Folders}"
+                    <Border Grid.Row="1"
+                            Style="{StaticResource innerBorder}">
+                        <ListView x:Name="lvFolders" ItemsSource="{Binding FolderPaths}"
                                   SelectedItem="{Binding SelectedFolderPath}"
-                                  BorderThickness="0" Background="Transparent"
+                                  Style="{StaticResource lvPaths}"
                                   KeyDown="LvFolders_KeyDown">
 
                             <ListView.Resources>
@@ -383,7 +410,7 @@
                                     <MenuItem Header="Delete" Click="LvFolders_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
-                            
+
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
@@ -413,37 +440,32 @@
             </Border>
 
             <Border Grid.Column="1" Grid.Row="1"
-                    BorderBrush="Black" BorderThickness="1" CornerRadius="3"
-                    Margin="10 10 0 0">
+                    Margin="10 10 0 0"
+                    Style="{StaticResource outterBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" MinHeight="40" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Label HorizontalAlignment="Left" VerticalAlignment="Center"
-                           Margin="5 0"
-                           Content="Apps" FontSize="20" FontWeight="SemiBold"/>
-                    <StackPanel Orientation="Horizontal" 
-                                HorizontalAlignment="Right"
-                                Margin="10 0">
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource openFolderIconApps}" FontSize="20" Height="24"
-                                Padding="2 2 0 0"
+                    <Label Content="Apps"
+                           Style="{StaticResource labelTitle}"/>
+                    <StackPanel Style="{StaticResource spTitle}">
+                        <Button Content="{StaticResource openFolderIconApps}"
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Command="{Binding OpenProjectCommand}"
-                                CommandParameter="Application"/>
-                        <Button VerticalAlignment="Center"
-                                Content="{StaticResource addIconApps}" FontSize="20" Height="24"
-                                Margin="5 0 0 0" Padding="3"
+                                Style="{StaticResource btnOpen}"
+                                Command="{Binding OpenApplicationPathsCommand}"/>
+                        <Button Content="{StaticResource addIconApps}"
                                 Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Command="{Binding AddAppCommand}"/>
+                                Style="{StaticResource btnAdd}"
+                                Command="{Binding AddApplicationPathCommand}"/>
                     </StackPanel>
 
-                    <Border Grid.Row="1" BorderThickness="0 0.5 0 0" BorderBrush="Black">
-                        <ListView x:Name="lvApps" ItemsSource="{Binding Apps}"
+                    <Border Grid.Row="1"
+                            Style="{StaticResource innerBorder}">
+                        <ListView x:Name="lvApps" ItemsSource="{Binding ApplicationPaths}"
                                   SelectedItem="{Binding SelectedAppPath}"
-                                  BorderThickness="0" Background="Transparent"
+                                  Style="{StaticResource lvPaths}"
                                   KeyDown="LvApps_KeyDown">
 
                             <ListView.Resources>
@@ -453,7 +475,7 @@
                                     <MenuItem Header="Delete" Click="LvApps_DeleteContextMenuItem_Click" />
                                 </ContextMenu>
                             </ListView.Resources>
-                            
+
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" >
                                     <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
@@ -481,8 +503,8 @@
                     </Border>
                 </Grid>
             </Border>
-            
+
         </Grid>
-        
+
     </Grid>
 </UserControl>

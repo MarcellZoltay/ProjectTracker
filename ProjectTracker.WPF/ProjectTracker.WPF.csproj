@@ -78,6 +78,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="HelperClasses\Icons.cs" />
     <Compile Include="HelperClasses\ItemsChangeObservableCollection.cs" />
     <Compile Include="HelperClasses\PathHelper.cs" />

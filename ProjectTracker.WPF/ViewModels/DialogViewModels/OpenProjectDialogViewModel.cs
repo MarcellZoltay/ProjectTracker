@@ -5,6 +5,7 @@ using ProjectTracker.WPF.HelperClasses;
 using ProjectTracker.WPF.Views.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
         public DelegateCommand<bool?> SelectAllCommand { get; }
         public DelegateCommand CheckAllSelectionCommand { get; }
 
-        private bool? dialogResult;
+        private bool? dialogResult = false;
         public bool? DialogResult
         {
             get { return dialogResult; }
@@ -31,7 +32,10 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
 
         private OpenProjectDialog view;
 
-        public List<PathToOpen> Paths { get; }
+        public List<PathToOpen> WebpageLinks { get; }
+        public List<PathToOpen> FilePaths { get; }
+        public List<PathToOpen> FolderPaths { get; }
+        public List<PathToOpen> ApplicationPaths { get; }
 
         private bool allSelected;
         public bool AllSelected
@@ -40,31 +44,46 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
             set { SetProperty(ref allSelected, value); }
         }
 
-        public OpenProjectDialogViewModel(IEnumerable<PathListViewItem> paths, string type)
+        public OpenProjectDialogViewModel()
         {
-            Paths = new List<PathToOpen>(paths.ConvertToPathToOpenItems());
-
             OpenCommand = new DelegateCommand(OpenOnClick);
             CancelCommand = new DelegateCommand(CancelOnClick);
             SelectAllCommand = new DelegateCommand<bool?>(SelectAll);
             CheckAllSelectionCommand = new DelegateCommand(CheckAllSelection);
 
-            if (type == null)
-            {
-                SelectAll(true);
-            }
-            else
-            {
-                SelectType(type);
-            }
+            WebpageLinks = new List<PathToOpen>();
+            FilePaths = new List<PathToOpen>();
+            FolderPaths = new List<PathToOpen>();
+            ApplicationPaths = new List<PathToOpen>();
         }
 
         public bool? ShowDialog()
         {
             view = new OpenProjectDialog(this);
+
+            SelectAll(true);
+            AllSelected = true;
+
             view.ShowDialog();
 
             return DialogResult;
+        }
+
+        public void AddWebpageLinks(IEnumerable<PathListViewItem> webpageLinks)
+        {
+            WebpageLinks.AddRange(webpageLinks.ConvertToPathToOpenItems());
+        }
+        public void AddFilePaths(IEnumerable<PathListViewItem> filePaths)
+        {
+            FilePaths.AddRange(filePaths.ConvertToPathToOpenItems());
+        }
+        public void AddFolderPaths(IEnumerable<PathListViewItem> Pathfolders)
+        {
+            FolderPaths.AddRange(Pathfolders.ConvertToPathToOpenItems());
+        }
+        public void AddApplicationPaths(IEnumerable<PathListViewItem> applicationPaths)
+        {
+            ApplicationPaths.AddRange(applicationPaths.ConvertToPathToOpenItems());
         }
 
         private void OpenOnClick()
@@ -78,26 +97,53 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
 
         private void SelectAll(bool? isChecked)
         {
-            foreach (var item in Paths)
+            foreach (var item in WebpageLinks)
             {
                 item.Open = isChecked.Value;
             }
-
-            CheckAllSelection();
-        }
-        private void SelectType(string type)
-        {
-            foreach (var item in Paths)
+            foreach (var item in FilePaths)
             {
-                if(item.Path.Type == type)
-                    item.Open = true;
+                item.Open = isChecked.Value;
             }
-
-            CheckAllSelection();
+            foreach (var item in FolderPaths)
+            {
+                item.Open = isChecked.Value;
+            }
+            foreach (var item in ApplicationPaths)
+            {
+                item.Open = isChecked.Value;
+            }
         }
         private void CheckAllSelection()
         {
-            foreach (var item in Paths)
+            foreach (var item in WebpageLinks)
+            {
+                if (item.Open == false)
+                {
+                    AllSelected = false;
+
+                    return;
+                }
+            }
+            foreach (var item in FilePaths)
+            {
+                if (item.Open == false)
+                {
+                    AllSelected = false;
+
+                    return;
+                }
+            }
+            foreach (var item in FolderPaths)
+            {
+                if (item.Open == false)
+                {
+                    AllSelected = false;
+
+                    return;
+                }
+            }
+            foreach (var item in ApplicationPaths)
             {
                 if (item.Open == false)
                 {
@@ -107,9 +153,7 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
                 }
             }
 
-            if (Paths.Count != 0)
-                AllSelected = true;
+            AllSelected = true;
         }
-
     }
 }

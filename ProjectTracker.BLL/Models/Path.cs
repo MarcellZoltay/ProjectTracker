@@ -17,8 +17,6 @@ namespace ProjectTracker.BLL.Models
             set { SetProperty(ref address, value); }
         }
 
-        public string Type { get; set; }
-
         public Path(string address)
         {
             Address = address;
