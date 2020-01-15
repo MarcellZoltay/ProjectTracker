@@ -24,10 +24,11 @@ namespace ProjectTracker.WPF.ViewModels
     public class ProjectPageViewModel : BindableBase, INavigationAware, IProjectPageViewModel
     {
         private readonly IRegionManager regionManager;
+        private IRegionNavigationService regionNavigationService;
         private ITodoService todoService;
         private IPathService pathService;
 
-        public DelegateCommand BackToStartPageClickCommand { get; }
+        public DelegateCommand GoBackClickCommand { get; }
         public DelegateCommand OpenProjectCommand { get; }
 
         private Project project;
@@ -156,7 +157,7 @@ namespace ProjectTracker.WPF.ViewModels
             this.todoService = todoService;
             this.pathService = pathService;
 
-            BackToStartPageClickCommand = new DelegateCommand(BackToStartPageClick);
+            GoBackClickCommand = new DelegateCommand(GoBackCommand);
             OpenProjectCommand = new DelegateCommand(OpenProjectClicked);
 
             AddTodoCommand = new DelegateCommand<TodoTreeViewItem>(AddTodo);
@@ -187,12 +188,16 @@ namespace ProjectTracker.WPF.ViewModels
             OpenApplicationPathsCommand = new DelegateCommand(OpenApplicationPathsClicked);
         }
 
-        private void BackToStartPageClick()
+        private void GoBackCommand()
         {
-            var navigationParameters = new NavigationParameters();
-            navigationParameters.Add("project", Project);
-
-            regionManager.RequestNavigate("MainRegion", "StartPage", navigationParameters);
+            if (regionNavigationService.Journal.CanGoBack)
+            {
+                regionNavigationService.Journal.GoBack();
+            }
+            else
+            {
+                regionManager.RequestNavigate("MainRegion", "StartPage");
+            }
         }
 
 
@@ -541,6 +546,8 @@ namespace ProjectTracker.WPF.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
+            regionNavigationService = navigationContext.NavigationService;
+
             TodoTreeViewItems.Clear();
             WebpageLinks.Clear();
             FilePaths.Clear();
@@ -567,7 +574,7 @@ namespace ProjectTracker.WPF.ViewModels
         }
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
-            // empty
+            navigationContext.Parameters.Add("project", Project);
         }
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {

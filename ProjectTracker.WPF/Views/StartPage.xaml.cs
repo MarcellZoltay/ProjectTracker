@@ -60,6 +60,7 @@ namespace ProjectTracker.WPF.Views
             //    selectedItem.IsSelected = false;
             //}
 
+            lvBME.UnselectAll();
             lvProjects.UnselectAll();
         }
 

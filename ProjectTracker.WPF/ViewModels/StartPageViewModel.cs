@@ -21,6 +21,8 @@ namespace ProjectTracker.WPF.ViewModels
     {
         private readonly IRegionManager regionManager;
 
+        public DelegateCommand<string> OpenBMECommand { get; }
+
         public DelegateCommand CreateProjectCommand { get; }
         public DelegateCommand<Project> OpenProjectCommand { get; }
         public DelegateCommand<Project> RenameProjectCommand { get; }
@@ -63,6 +65,8 @@ namespace ProjectTracker.WPF.ViewModels
         public StartPageViewModel(IRegionManager regionManager, IProjectService projectService, ITodoService todoService)
         {
             this.regionManager = regionManager;
+
+            OpenBMECommand = new DelegateCommand<string>(OpenBME);
 
             CreateProjectCommand = new DelegateCommand(CreateProject);
             OpenProjectCommand = new DelegateCommand<Project>(OpenProject);
@@ -111,7 +115,14 @@ namespace ProjectTracker.WPF.ViewModels
             });
         }
 
-        
+        private void OpenBME(string title)
+        {
+            var navigationParameters = new NavigationParameters();
+            navigationParameters.Add("title", title);
+
+            regionManager.RequestNavigate("MainRegion", "BMEPage", navigationParameters);
+        }
+
         private void CreateProject()
         {
             var dialogViewModel = new ProjectDialogViewModel();
@@ -191,14 +202,17 @@ namespace ProjectTracker.WPF.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            var project = (Project)navigationContext.Parameters["project"];
+            if (navigationContext.Parameters["project"] != null)
+            {
+                var project = (Project)navigationContext.Parameters["project"];
 
-            var projectExpandable = ProjectExpandables.Where(p => p.Project == project).First();
-            projectExpandable.RefreshTodos();
+                var projectExpandable = ProjectExpandables.Where(p => p.Project == project).First();
+                projectExpandable.RefreshTodos();
+            }
         }
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
-            // empty
+            // intentionally empty
         }
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {

@@ -22,10 +22,13 @@ namespace ProjectTracker.WPF
         {
             containerRegistry.RegisterForNavigation<StartPage, StartPageViewModel>();
             containerRegistry.RegisterForNavigation<ProjectPage, ProjectPageViewModel>();
+            containerRegistry.RegisterForNavigation<BMEPage, BMEPageViewModel>();
 
             containerRegistry.RegisterSingleton<IProjectService, ProjectService>();
             containerRegistry.RegisterSingleton<ITodoService, TodoService>();
             containerRegistry.RegisterSingleton<IPathService, PathService>();
+            containerRegistry.RegisterSingleton<ITermService, TermService>();
+            containerRegistry.RegisterSingleton<ICourseService, CourseService>();
         }
     }
 }

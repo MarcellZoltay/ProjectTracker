@@ -19,8 +19,8 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
         public DelegateCommand<bool?> SelectAllCommand { get; }
         public DelegateCommand CheckAllSelectionCommand { get; }
 
-        private bool? dialogResult = false;
-        public bool? DialogResult
+        private bool dialogResult;
+        public bool DialogResult
         {
             get { return dialogResult; }
             private set
@@ -57,7 +57,7 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
             ApplicationPaths = new List<PathToOpen>();
         }
 
-        public bool? ShowDialog()
+        public bool ShowDialog()
         {
             view = new OpenProjectDialog(this);
 

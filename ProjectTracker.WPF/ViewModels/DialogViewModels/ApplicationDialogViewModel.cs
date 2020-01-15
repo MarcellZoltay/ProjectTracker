@@ -14,8 +14,8 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
         public DelegateCommand AddCommand { get; }
         public DelegateCommand CancelCommand { get; }
 
-        private bool? dialogResult;
-        public bool? DialogResult
+        private bool dialogResult;
+        public bool DialogResult
         {
             get { return dialogResult; }
             private set
@@ -35,7 +35,7 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
             CancelCommand = new DelegateCommand(CancelOnClick);
         }
 
-        public bool? ShowDialog()
+        public bool ShowDialog()
         {
             view = new ApplicationDialog();
             view.DataContext = this;

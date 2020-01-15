@@ -4,6 +4,10 @@
 			xmlns:prism="http://prismlibrary.com/"
 			xmlns:local="clr-namespace:ProjectTracker.WPF">
 	<Application.Resources>
-		 
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="ResourceDictionaries/StyleDictionary.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
 	</Application.Resources>
 </prism:PrismApplication>

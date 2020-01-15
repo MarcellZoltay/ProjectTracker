@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace ProjectTracker.WPF.ViewModels.DialogViewModels
 {
-    public class WebpageDialogViewModel
+    public class CourseDialogViewModel
     {
-        public DelegateCommand SaveCommand { get; }
+        public string ButtonContent { get; }
+
+        public DelegateCommand AddSaveCommand { get; }
         public DelegateCommand CancelCommand { get; }
 
         private bool dialogResult;
@@ -24,30 +26,46 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
             }
         }
 
-        private WebpageDialog view;
+        private CourseDialog view;
 
-        public string WebpageLink { get; set; }
+        public string CourseTitle { get; set; }
+        public int Credit { get; set; }
 
-        public WebpageDialogViewModel()
+        public CourseDialogViewModel(string title = null, int? credit = null)
         {
-            SaveCommand = new DelegateCommand(SaveOnClick);
+            AddSaveCommand = new DelegateCommand(AddSaveOnClick);
             CancelCommand = new DelegateCommand(CancelOnClick);
+
+            if (title == null)
+            {
+                ButtonContent = "Add";
+            }
+            else
+            {
+                ButtonContent = "Save";
+                CourseTitle = title;
+            }
+
+            if (credit.HasValue)
+            {
+                Credit = credit.Value;
+            }
         }
 
         public bool ShowDialog()
         {
-            view = new WebpageDialog();
+            view = new CourseDialog();
             view.DataContext = this;
             view.ShowDialog();
 
             return DialogResult;
         }
 
-        private void SaveOnClick()
+        private void AddSaveOnClick()
         {
-            var linkChecked = WebpageLink != null && WebpageLink != "";
+            var courseNameChecked = CourseTitle != null && CourseTitle != "";
 
-            if (linkChecked)
+            if (courseNameChecked)
             {
                 DialogResult = true;
             }

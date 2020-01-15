@@ -10,7 +10,8 @@ namespace ProjectTracker.BLL.Services.Interfaces
     public interface IProjectService
     {
         List<Project> GetProjects();
-        Project CreateProject(string projectTitle);
+        Project GetProjectByCourseId(int courseId);
+        Project CreateProject(string projectTitle, int? courseId = null);
         void UpdateProject(Project projectToUpdate);
         Task UpdateProjectAsync(Project projectToUpdate);
         void DeleteProject(Project projectToDelete);

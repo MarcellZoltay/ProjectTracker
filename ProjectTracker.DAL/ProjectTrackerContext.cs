@@ -15,6 +15,8 @@ namespace ProjectTracker.DAL
         public DbSet<TodoEntity> Todos { get; set; }
         public DbSet<PathEntity> Paths { get; set; }
         public DbSet<PathType> PathTypes { get; set; }
+        public DbSet<TermEntity> Terms { get; set; }
+        public DbSet<CourseEntity> Courses { get; set; }
 
         public ProjectTrackerContext() : base ("ProjectTrackerDB")
         {

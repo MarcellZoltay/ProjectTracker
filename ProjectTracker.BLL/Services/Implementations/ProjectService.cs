@@ -32,32 +32,50 @@ namespace ProjectTracker.BLL.Services.Implementations
             {
                 var project = ConvertToModel(item);
 
-                var todos = todoService.GetTodosByProjectId(project.Id);
-                project.AddTodoRange(todos);
-
-                var webpageLinks = pathService.GetWebpageLinksByProjectId(project.Id);
-                project.AddWebpageLinkRange(webpageLinks);
-
-                var filePaths = pathService.GetFilePathsByProjectId(project.Id);
-                project.AddFilePathRange(filePaths);
-
-                var folderPaths = pathService.GetFolderPathsByProjectId(project.Id);
-                project.AddFolderPathRange(folderPaths);
-
-                var applicaiontPaths = pathService.GetApplicationPathsByProjectId(project.Id);
-                project.AddApplicationPathRange(applicaiontPaths);
-
+                GetTodos(project);
+                GetPaths(project);
+                
                 projects.Add(project);
             }
 
             return projects;
         }
+        public Project GetProjectByCourseId(int courseId)
+        {
+            var projectEntity = projectEntityService.GetProjectByCourseId(courseId);
+            var project = ConvertToModel(projectEntity);
 
-        public Project CreateProject(string title)
+            GetTodos(project);
+            GetPaths(project);
+
+            return project;
+        }
+        private void GetTodos(Project project)
+        {
+            var todos = todoService.GetTodosByProjectId(project.Id);
+            project.AddTodoRange(todos);
+        }
+        private void GetPaths(Project project)
+        {
+            var webpageLinks = pathService.GetWebpageLinksByProjectId(project.Id);
+            project.AddWebpageLinkRange(webpageLinks);
+
+            var filePaths = pathService.GetFilePathsByProjectId(project.Id);
+            project.AddFilePathRange(filePaths);
+
+            var folderPaths = pathService.GetFolderPathsByProjectId(project.Id);
+            project.AddFolderPathRange(folderPaths);
+
+            var applicaiontPaths = pathService.GetApplicationPathsByProjectId(project.Id);
+            project.AddApplicationPathRange(applicaiontPaths);
+        }
+
+        public Project CreateProject(string title, int? courseId = null)
         {
             var project = new Project(title);
 
             var projectEntity = ConvertToEntity(project);
+            projectEntity.CourseID = courseId;
 
             project.Id = projectEntityService.AddProject(projectEntity);
             
@@ -104,6 +122,5 @@ namespace ProjectTracker.BLL.Services.Implementations
                 Title = model.Title
             };
         }
-
     }
 }

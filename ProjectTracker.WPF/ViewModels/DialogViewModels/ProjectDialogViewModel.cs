@@ -16,8 +16,8 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
         public DelegateCommand AddSaveCommand { get; }
         public DelegateCommand CancelCommand { get; }
 
-        private bool? dialogResult;
-        public bool? DialogResult
+        private bool dialogResult;
+        public bool DialogResult
         {
             get { return dialogResult; }
             private set
@@ -40,8 +40,6 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
             if (projectTitle == null)
             {
                 ButtonContent = "Add";
-
-                ProjectTitle = "";
             }
             else
             {
@@ -52,7 +50,7 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
         }
 
 
-        public bool? ShowDialog()
+        public bool ShowDialog()
         {
             view = new ProjectDialog();
             view.DataContext = this;

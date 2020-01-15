@@ -15,7 +15,18 @@ namespace ProjectTracker.DAL.Services.Implementations
         {
             using (var db = new ProjectTrackerContext())
             {
-                return db.Projects.AsNoTracking().ToList();
+                return (from p in db.Projects.AsNoTracking()
+                        where p.CourseID == null
+                        select p).ToList();
+            }
+        }
+        public ProjectEntity GetProjectByCourseId(int courseId)
+        {
+            using (var db = new ProjectTrackerContext())
+            {
+                return (from p in db.Projects.AsNoTracking()
+                        where p.CourseID.Value == courseId
+                        select p).First();
             }
         }
 
@@ -34,7 +45,15 @@ namespace ProjectTracker.DAL.Services.Implementations
         {
             using (var db = new ProjectTrackerContext())
             {
+                var entity = (from p in db.Projects
+                              where p.Id == projectToUpdate.Id
+                              select p).FirstOrDefault();
+
+                projectToUpdate.CourseID = entity.CourseID;
+
+                db.Entry(entity).State = EntityState.Detached;
                 db.Entry(projectToUpdate).State = EntityState.Modified;
+
                 db.SaveChanges();
             }
         }
@@ -47,6 +66,5 @@ namespace ProjectTracker.DAL.Services.Implementations
                 db.SaveChanges();
             }
         }
-
     }
 }
