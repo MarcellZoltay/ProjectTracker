@@ -23,7 +23,7 @@
         <Grid DockPanel.Dock="Bottom">
             <CheckBox x:Name="cbSelectAll" Content="Select all"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
-                      Margin="31 0 0 20"
+                      Margin="26 0 0 20"
                       IsChecked="{Binding AllSelected}">
 
                 <i:Interaction.Triggers>
@@ -42,8 +42,8 @@
         </Grid>
 
         <Grid>
-            <Border BorderBrush="Black" BorderThickness="1" CornerRadius="3" 
-                    Margin="20 20 20 10">
+            <Border Margin="20 20 20 10"
+                    Style="{StaticResource defaultBorder}">
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Auto">
@@ -66,8 +66,8 @@
                             <DataTemplate x:Key="pathsTemplate">
                                 <StackPanel Orientation="Horizontal">
                                     <CheckBox x:Name="cbOpenItem" IsChecked="{Binding Open}" 
-                                          VerticalAlignment="Center"
-                                          Margin="5 0">
+                                              VerticalAlignment="Center"
+                                              Margin="5 0">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Click">
                                                 <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}, Path=DataContext.CheckAllSelectionCommand}"/>

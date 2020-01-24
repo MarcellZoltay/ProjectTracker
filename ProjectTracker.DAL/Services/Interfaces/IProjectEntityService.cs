@@ -10,6 +10,7 @@ namespace ProjectTracker.DAL.Services.Interfaces
     public interface IProjectEntityService
     {
         List<ProjectEntity> GetProjects();
+        ProjectEntity GetProjectByCourseId(int courseId);
         int AddProject(ProjectEntity project);
         void UpdateProject(ProjectEntity projectToUpdate);
         void DeleteProject(ProjectEntity projectToDelete);

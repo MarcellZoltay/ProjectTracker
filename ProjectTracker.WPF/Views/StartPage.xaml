@@ -26,24 +26,10 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
 
-        <Style TargetType="Border">
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="3"/>
-        </Style>
-        <Style x:Key="labelTItle" TargetType="Label">
+        <Style x:Key="labelTitle" TargetType="Label">
             <Setter Property="Margin" Value="10 5"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="24"/>
-        </Style>
-        <Style TargetType="ListView">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-        </Style>
-        <Style x:Key="labelLoading" TargetType="Label">
-            <Setter Property="Content" Value="Loading..."/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
 
@@ -60,87 +46,111 @@
 
 
         <DockPanel Margin="10">
-            <Label DockPanel.Dock="Top"
-                   Content="Projects"
-                   Style="{StaticResource labelTItle}"/>
+            <DockPanel DockPanel.Dock="Top">
+                <Label DockPanel.Dock="Top"
+                       Content="BME"
+                       Style="{StaticResource labelTitle}"/>
 
-            <Button DockPanel.Dock="Bottom"
-                    Content="Create new project" 
-                    Margin="10" Padding="3"
-                    HorizontalAlignment="Left"
-                    Command="{Binding CreateProjectCommand}"/>
-
-            <Grid>
-                <Border Margin="10 0 10 0">
-                    <ListView x:Name="lvProjects" 
-                              ItemsSource="{Binding Source={StaticResource SortedProjects}}"
-                              SelectedItem="{Binding SelectedProject}"
-                              HorizontalContentAlignment="Stretch"
-                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-
-                        <ListView.InputBindings>
-                            <KeyBinding Key="Delete" Command="{Binding DeleteProjectCommand}" CommandParameter="{Binding ElementName=lvProjects, Path=SelectedItem}"/>
-                        </ListView.InputBindings>
-                        
-                        <ListView.Resources>
-                            <ContextMenu x:Key="ItemContextMenu">
-                                <MenuItem Header="Open"
-                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenProjectCommand}" 
-                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                <MenuItem Header="Rename"
-                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.RenameProjectCommand}" 
-                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                <Separator/>
-                                <MenuItem Header="Delete"
-                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeleteProjectCommand}" 
-                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                            </ContextMenu>
-                        </ListView.Resources>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListViewItem}" >
-                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Title}" Margin="0 3"
-                                           TextWrapping="WrapWithOverflow"/>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-
+                <Border Margin="10 0 10 0"
+                        Style="{StaticResource defaultBorder}">
+                    <ListView x:Name="lvBME">
+                        <ListViewItem Content="MSc - Computer Engineering"
+                                      HorizontalContentAlignment="Stretch"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDoubleClick">
-                                <i:InvokeCommandAction Command="{Binding OpenProjectCommand}"
-                                                       CommandParameter="{Binding ElementName=lvProjects, Path=SelectedItem}"/>
+                                <i:InvokeCommandAction Command="{Binding OpenBMECommand}"
+                                                       CommandParameter="{Binding ElementName=lvBME, Path=SelectedItem.Content}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </ListView>
                 </Border>
+            </DockPanel>
+            <DockPanel>
+                <Label DockPanel.Dock="Top"
+                       Content="Projects"
+                       Style="{StaticResource labelTitle}"/>
+
+                <Button DockPanel.Dock="Bottom"
+                        Content="Create new project" 
+                        Margin="10" Padding="3"
+                        HorizontalAlignment="Left"
+                        Command="{Binding CreateProjectCommand}"/>
+
+                <Grid>
+                    <Border Margin="10 0 10 0"
+                            Style="{StaticResource defaultBorder}">
+                        <ListView x:Name="lvProjects" 
+                                  ItemsSource="{Binding Source={StaticResource SortedProjects}}"
+                                  SelectedItem="{Binding SelectedProject}"
+                                  HorizontalContentAlignment="Stretch"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                            <ListView.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteProjectCommand}" CommandParameter="{Binding ElementName=lvProjects, Path=SelectedItem}"/>
+                            </ListView.InputBindings>
+                        
+                            <ListView.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <MenuItem Header="Open"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenProjectCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <MenuItem Header="Rename"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.RenameProjectCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Delete"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeleteProjectCommand}" 
+                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Title}" Margin="0 3"
+                                               TextWrapping="WrapWithOverflow"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding OpenProjectCommand}"
+                                                           CommandParameter="{Binding ElementName=lvProjects, Path=SelectedItem}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ListView>
+                    </Border>
                 
-                <Label Style="{StaticResource labelLoading}"
-                       Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Label Style="{StaticResource labelLoading}"
+                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding IsListEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Button Content="+" FontSize="20"
-                            Margin="5" Padding="0 -5 0 0"
-                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                            Command="{Binding CreateProjectCommand}"/>
-                    <Label Content="Create new project" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Grid>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsListEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Content="+" FontSize="20"
+                                Margin="5" Padding="0 -5 0 0"
+                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                Command="{Binding CreateProjectCommand}"/>
+                        <Label Content="Create new project" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </DockPanel>
         </DockPanel>
 
         <DockPanel Grid.Column="1"
                    Margin="10 10 10 53">
             <Label DockPanel.Dock="Top"
                    Content="Todos"
-                   Style="{StaticResource labelTItle}"/>
+                   Style="{StaticResource labelTitle}"/>
 
             <Grid>
-                <Border Margin="10 0 10 0">
+                <Border Margin="10 0 10 0"
+                        Style="{StaticResource defaultBorder}">
                     <ListView x:Name="lvProjectTodos" 
                               ItemsSource="{Binding Source={StaticResource SortedProjectExpandables}}">
 
@@ -166,7 +176,7 @@
                                                         </CollectionViewSource.SortDescriptions>
                                                     </CollectionViewSource>
                                                 </Expander.Resources>
-                                                
+
                                                 <Expander.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock FontWeight="SemiBold" Text="{Binding Path=Project.Title}" Margin="5 0 0 0"/>
@@ -285,11 +295,66 @@
                         </ListView.ItemContainerStyle>
                     </ListView>
                 </Border>
-                
+
                 <Label Style="{StaticResource labelLoading}"
                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </Grid>
         </DockPanel>
+        
+        <!--<DockPanel Grid.Column="2"
+                   Margin="10 10 10 53">
+            <Label DockPanel.Dock="Top"
+                   Content="Deadlines"
+                   Style="{StaticResource labelTitle}"/>
+
+            <Grid>
+                <Border Margin="10 0 10 0"
+                        Style="{StaticResource defaultBorder}">
+                    --><!--<ListView x:Name="lvDeadlines" ItemsSource="{Binding Source={StaticResource SortedTodos}}"
+                              SelectedItem="{Binding SelectedProject}"
+                              HorizontalContentAlignment="Stretch"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                        <ListView.Resources>
+                            <ContextMenu x:Key="ItemContextMenu">
+                                <MenuItem Header="Open"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.OpenProjectCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                <MenuItem Header="Rename"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.RenameProjectCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                <Separator/>
+                                <MenuItem Header="Delete"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeleteProjectCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                            </ContextMenu>
+                        </ListView.Resources>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" >
+                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Title}" Margin="0 3"
+                                           TextWrapping="WrapWithOverflow"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDoubleClick">
+                                <i:InvokeCommandAction Command="{Binding OpenProjectCommand}"
+                                                       CommandParameter="{Binding ElementName=lvProjects, Path=SelectedItem}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ListView>--><!--
+                </Border>
+
+                <Label Style="{StaticResource labelLoading}"
+                       Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </Grid>
+        </DockPanel>-->
     </Grid>
     
 </UserControl>

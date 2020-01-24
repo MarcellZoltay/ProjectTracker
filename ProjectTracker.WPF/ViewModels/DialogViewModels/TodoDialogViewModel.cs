@@ -17,8 +17,8 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
         public DelegateCommand CancelCommand { get; }
         public DelegateCommand RemoveDeadlineCommand { get; }
 
-        private bool? dialogResult;
-        public bool? DialogResult
+        private bool dialogResult;
+        public bool DialogResult
         {
             get { return dialogResult; }
             private set
@@ -65,7 +65,7 @@ namespace ProjectTracker.WPF.ViewModels.DialogViewModels
             }
         }
 
-        public bool? ShowDialog()
+        public bool ShowDialog()
         {
             view = new TodoDialog();
             view.DataContext = this;

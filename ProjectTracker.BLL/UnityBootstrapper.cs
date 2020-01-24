@@ -35,9 +35,13 @@ namespace ProjectTracker.BLL
             container.RegisterType<IProjectEntityService, ProjectEntityService>();
             container.RegisterType<ITodoEntityService, TodoEntityService>();
             container.RegisterType<IPathEntityService, PathEntityService>();
+            container.RegisterType<ITermEntityService, TermEntityService>();
+            container.RegisterType<ICourseEntityService, CourseEntityService>();
 
+            container.RegisterType<IProjectService, ProjectService>();
             container.RegisterType<ITodoService, TodoService>();
             container.RegisterType<IPathService, PathService>();
+            container.RegisterType<ICourseService, CourseService>();
         }
 
         public T Resolve<T>()
