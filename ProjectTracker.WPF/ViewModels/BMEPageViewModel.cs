@@ -25,7 +25,7 @@ namespace ProjectTracker.WPF.ViewModels
 		}
 
 		private readonly IRegionManager regionManager;
-        public DelegateCommand GoBackClickCommand { get; }
+		public DelegateCommand GoBackClickCommand { get; }
 		public DelegateCommand<Course> OpenCourseCommand { get; }
 		public DelegateCommand<TermListViewItem> AddCourseCommand { get; }
 		public DelegateCommand<Course> EditCourseCommand { get; }
@@ -87,7 +87,7 @@ namespace ProjectTracker.WPF.ViewModels
 					catch (Exception exception)
 					{
 						e = exception;
-						result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+						result = MessageBox.Show(e.Message, "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
 					}
 				}
 				while (e != null && result == MessageBoxResult.OK);

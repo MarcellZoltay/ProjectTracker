@@ -285,7 +285,7 @@ namespace ProjectTracker.WPF.ViewModels
                 var webpageLink = pathService.CreateWebpageLinkPath(project.Id, dialogViewModel.WebpageLink);
 
                 Project.AddWebpageLink(webpageLink);
-                WebpageLinks.Add(new PathListViewItem(webpageLink, GetPathIcon(webpageLink.Address)));
+                WebpageLinks.Add(new PathListViewItem(webpageLink, GetBrowserIcon()));
             }
             catch (Exception e)
             {
