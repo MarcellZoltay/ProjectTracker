@@ -42,6 +42,7 @@ namespace ProjectTracker.BLL
             container.RegisterType<ITodoService, TodoService>();
             container.RegisterType<IPathService, PathService>();
             container.RegisterType<ICourseService, CourseService>();
+            container.RegisterType<IExcelService, ExcelService>();
         }
 
         public T Resolve<T>()

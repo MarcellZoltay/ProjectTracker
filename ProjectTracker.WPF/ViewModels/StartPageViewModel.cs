@@ -108,7 +108,7 @@ namespace ProjectTracker.WPF.ViewModels
                     catch (Exception exception)
                     {
                         e = exception;
-                        result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+                        result = MessageBox.Show(e.Message, "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
                     }
                 }
                 while (e != null && result == MessageBoxResult.OK);

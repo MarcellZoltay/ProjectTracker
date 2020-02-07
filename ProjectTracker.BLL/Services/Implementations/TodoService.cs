@@ -47,17 +47,20 @@ namespace ProjectTracker.BLL.Services.Implementations
             }
         }
 
-        public Todo CreateTodo(int? projectId, int? parentTodoId, string text, DateTime? deadline)
+        public void AddTodoToProject(int projectId, Todo todo)
         {
-            var todo = new Todo(text) { Deadline = deadline };
-
             var todoEntity = ConvertToEntity(todo);
             todoEntity.ProjectID = projectId;
+
+            todo.Id = todoEntityService.AddTodo(todoEntity);
+        }
+
+        public void AddSubTodo(int parentTodoId, Todo todo)
+        {
+            var todoEntity = ConvertToEntity(todo);
             todoEntity.ParentTodoID = parentTodoId;
 
             todo.Id = todoEntityService.AddTodo(todoEntity);
-
-            return todo;
         }
 
         public void UpdateTodo(Todo todoToUpdate)

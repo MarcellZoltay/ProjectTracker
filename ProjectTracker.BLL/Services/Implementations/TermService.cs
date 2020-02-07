@@ -14,11 +14,13 @@ namespace ProjectTracker.BLL.Services.Implementations
     {
         private ITermEntityService termEntityService;
         private ICourseService courseService;
+        private IExcelService excelService;
 
         public TermService()
         {
             termEntityService = UnityBootstrapper.Instance.Resolve<ITermEntityService>();
             courseService = UnityBootstrapper.Instance.Resolve<ICourseService>();
+            excelService = UnityBootstrapper.Instance.Resolve<IExcelService>();
         }
 
         public List<Term> GetTerms()
@@ -37,6 +39,32 @@ namespace ProjectTracker.BLL.Services.Implementations
             }
 
             return terms;
+        }
+
+        public void ImportLessonsAsTodosFromExcel(string path, Term term)
+        {
+            var rows = excelService.ReadExcelFile(path);
+
+            var courses = term.Courses;
+
+            for (int i = 1; i < rows.Count; i++)
+            {
+                var row = rows[i];
+
+                string[] start = row.ElementAt(0).Split('.', ':');
+                DateTime startDate = new DateTime(int.Parse(start[0]), int.Parse(start[1]), int.Parse(start[2]),
+                                                  int.Parse(start[3].Trim()), int.Parse(start[4]), int.Parse(start[5]));
+
+                string[] summary = row.ElementAt(2).Split('(', ')');
+                string subjectTitle = summary[0].Trim();
+                string lessonType = summary[2].Trim().Split('-')[1].Trim();
+
+                string venue = row.ElementAt(3);
+
+                var course = courses.Where(c => subjectTitle.Contains(c.Title)).FirstOrDefault();
+                if (course != null)
+                    courseService.ImportLessonTodo(course, startDate, lessonType, venue);
+            }
         }
 
         public Term ConvertToModel(TermEntity entity)

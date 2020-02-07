@@ -172,6 +172,8 @@
                                         </Run>
                                         <Run Text="{Binding Todo.Deadline, StringFormat=yyyy.MM.dd.}"
                                              TextDecorations="Underline"/>
+                                        <Run Text="{Binding Todo.Deadline, StringFormat=HH:mm}"
+                                             TextDecorations="Underline"/>
                                     </TextBlock>
                                 </StackPanel>
                             </HierarchicalDataTemplate>

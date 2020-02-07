@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
 using ProjectTracker.BLL.Models;
@@ -25,11 +26,12 @@ namespace ProjectTracker.WPF.ViewModels
 		}
 
 		private readonly IRegionManager regionManager;
-        public DelegateCommand GoBackClickCommand { get; }
+		public DelegateCommand GoBackClickCommand { get; }
 		public DelegateCommand<Course> OpenCourseCommand { get; }
 		public DelegateCommand<TermListViewItem> AddCourseCommand { get; }
 		public DelegateCommand<Course> EditCourseCommand { get; }
 		public DelegateCommand<Course> DeleteCourseCommand { get; }
+		public DelegateCommand<TermListViewItem> ImportLessonsAsTodosFromExcelCommand { get; }
 
 		private ITermService termService;
 		private ICourseService courseService;
@@ -61,6 +63,7 @@ namespace ProjectTracker.WPF.ViewModels
 			AddCourseCommand = new DelegateCommand<TermListViewItem>(AddCourse);
 			EditCourseCommand = new DelegateCommand<Course>(EditCourse);
 			DeleteCourseCommand = new DelegateCommand<Course>(DeleteCourse);
+			ImportLessonsAsTodosFromExcelCommand = new DelegateCommand<TermListViewItem>(ImportLessonsAsTodosFromExcel);
 
 			TermsListViewItems = new ObservableCollection<TermListViewItem>();
 
@@ -87,7 +90,7 @@ namespace ProjectTracker.WPF.ViewModels
 					catch (Exception exception)
 					{
 						e = exception;
-						result = MessageBox.Show("Could not connect to database.", "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+						result = MessageBox.Show(e.Message, "Error", MessageBoxButton.OKCancel, MessageBoxImage.Information);
 					}
 				}
 				while (e != null && result == MessageBoxResult.OK);
@@ -148,6 +151,23 @@ namespace ProjectTracker.WPF.ViewModels
 			}
 
 			SelectedCourse = null;
+		}
+
+		private void ImportLessonsAsTodosFromExcel(TermListViewItem termListViewItem)
+		{
+			var commonOpenFileDialog = new CommonOpenFileDialog();
+
+			if (commonOpenFileDialog.ShowDialog() != CommonFileDialogResult.Ok)
+				return;
+
+			try
+			{
+				termService.ImportLessonsAsTodosFromExcel(commonOpenFileDialog.FileName, termListViewItem.Term);
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show($"{e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+			}
 		}
 
 		public void OnNavigatedTo(NavigationContext navigationContext)
