@@ -10,7 +10,8 @@ namespace ProjectTracker.BLL.Services.Interfaces
     public interface ITodoService
     {
         List<Todo> GetTodosByProjectId(int projectId);
-        Todo CreateTodo(int? projectId, int? parentTodoId, string text, DateTime? deadline);
+        void AddTodoToProject(int projectId, Todo todo);
+        void AddSubTodo(int parentTodoId, Todo todo);
         void UpdateTodo(Todo todoToUpdate);
         Task UpdateTodoAsync(Todo todoToUpdate);
         void DeleteTodo(Todo todoToDelete);

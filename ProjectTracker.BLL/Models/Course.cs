@@ -38,7 +38,9 @@ namespace ProjectTracker.BLL.Models
         }
 
         public Project Project { get; set; }
-        
+
+        public List<Todo> Todos => Project.Todos;
+
         public Course(string title)
         {
             Title = title;

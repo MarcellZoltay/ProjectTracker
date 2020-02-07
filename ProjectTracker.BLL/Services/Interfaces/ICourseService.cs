@@ -15,5 +15,6 @@ namespace ProjectTracker.BLL.Services.Interfaces
         Task UpdateCourseAsync(Course courseToUpdate);
         void DeleteCourse(Course courseToDelete);
         Task DeleteCourseAsync(Course courseToDelete);
+        void ImportLessonTodo(Course course, DateTime startDate, string lessonType, string venue);
     }
 }

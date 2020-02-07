@@ -210,7 +210,8 @@ namespace ProjectTracker.WPF.ViewModels
             {
                 if (item == null)
                 {
-                    var todo = todoService.CreateTodo(Project.Id, null, dialogViewModel.Text, dialogViewModel.Deadline);
+                    var todo = new Todo(dialogViewModel.Text) { Deadline = dialogViewModel.Deadline };
+                    todoService.AddTodoToProject(Project.Id, todo);
                     var todoTreeViewItem = new TodoTreeViewItem(todo);
 
                     Project.AddTodo(todo);
@@ -220,7 +221,8 @@ namespace ProjectTracker.WPF.ViewModels
                 }
                 else
                 {
-                    var todo = todoService.CreateTodo(null, item.Todo.Id, dialogViewModel.Text, dialogViewModel.Deadline);
+                    var todo = new Todo(dialogViewModel.Text) { Deadline = dialogViewModel.Deadline };
+                    todoService.AddSubTodo(item.Todo.Id, todo);
                     var todoTreeViewItem = new TodoTreeViewItem(todo);
 
                     item.Todo.AddTodo(todo);

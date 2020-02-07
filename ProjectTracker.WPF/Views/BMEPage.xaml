@@ -69,6 +69,13 @@
                                         CommandParameter="{Binding}">
                                     <Image Source="../Icons/add-icon.png"/>
                                 </Button>
+                                <Button Content="Import lessons" 
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource btnBase}"
+                                        Margin="0 0 40 0"
+                                        Command="{Binding ElementName=icTerms, Path=DataContext.ImportLessonsAsTodosFromExcelCommand}"
+                                        CommandParameter="{Binding}"/>
 
                                 <Border Grid.Row="1" 
                                         Style="{StaticResource titleBorder}">
