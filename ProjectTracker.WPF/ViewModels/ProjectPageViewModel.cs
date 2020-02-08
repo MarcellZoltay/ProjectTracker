@@ -12,10 +12,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -46,6 +48,7 @@ namespace ProjectTracker.WPF.ViewModels
         public DelegateCommand<TodoTreeViewItem> IsInProgressClickedCommand { get; }
 
         public TreeViewItemsObservableCollection TodoTreeViewItems { get; }
+        public ICollectionView TodoTreeViewItemsViewSource { get; }
 
         private bool isTodoTreeViewEmpty;
         public bool IsTodoTreeViewEmtpy
@@ -167,6 +170,11 @@ namespace ProjectTracker.WPF.ViewModels
             IsInProgressClickedCommand = new DelegateCommand<TodoTreeViewItem>(IsInProgressClicked);
 
             TodoTreeViewItems = new TreeViewItemsObservableCollection();
+            TodoTreeViewItemsViewSource = CollectionViewSource.GetDefaultView(TodoTreeViewItems);
+            TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.IsInProgress", ListSortDirection.Descending));
+            TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.IsDone", ListSortDirection.Ascending));
+            TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.Deadline", ListSortDirection.Ascending));
+            TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.Text", ListSortDirection.Ascending));
 
             OpenWebpageLinkCommand = new DelegateCommand<PathListViewItem>(OpenWebpageLink);
             OpenPathCommand = new DelegateCommand<PathListViewItem>(OpenPath);
