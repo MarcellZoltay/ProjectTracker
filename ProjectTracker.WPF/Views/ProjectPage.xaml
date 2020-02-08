@@ -19,15 +19,6 @@
         <Image x:Key="addIconApps" Source="../Icons/add-icon.png" />
         <Image x:Key="addIconTodos" Source="../Icons/add-icon.png" />
         <Image x:Key="addIconTodos2" Source="../Icons/add-icon.png" />
-
-        <CollectionViewSource x:Key="SortedTodos" Source="{Binding TodoTreeViewItems}">
-            <CollectionViewSource.SortDescriptions>
-                <scm:SortDescription PropertyName="Todo.IsInProgress" Direction="Descending"/>
-                <scm:SortDescription PropertyName="Todo.IsDone" Direction="Ascending" />
-                <scm:SortDescription PropertyName="Todo.Deadline" />
-                <scm:SortDescription PropertyName="Todo.Text" />
-            </CollectionViewSource.SortDescriptions>
-        </CollectionViewSource>
     </UserControl.Resources>
 
     <Grid Background="Transparent"
@@ -90,7 +81,7 @@
                 <Border Grid.Row="1"
                         Style="{StaticResource titleBorder}">
                     <TreeView x:Name="tvTodos"
-                              ItemsSource="{Binding Source={StaticResource SortedTodos}}"
+                              ItemsSource="{Binding TodoTreeViewItemsViewSource}"
                               BorderThickness="0" Background="Transparent"
                               MouseDown="TvTodos_MouseDown">
 
@@ -146,7 +137,7 @@
                         </TreeView.Resources>
 
                         <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <HierarchicalDataTemplate ItemsSource="{Binding ChildrenViewSource}">
                                 <StackPanel Orientation="Horizontal"
                                             Margin="0 3" Height="20">
                                     <CheckBox IsChecked="{Binding Todo.IsDone}"
