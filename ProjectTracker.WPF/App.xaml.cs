@@ -5,6 +5,8 @@ using ProjectTracker.WPF.Views;
 using ProjectTracker.WPF.ViewModels;
 using ProjectTracker.BLL.Services.Interfaces;
 using ProjectTracker.BLL.Services.Implementations;
+using Prism.Regions;
+using Prism.Mvvm;
 
 namespace ProjectTracker.WPF
 {
@@ -29,6 +31,15 @@ namespace ProjectTracker.WPF
             containerRegistry.RegisterSingleton<IPathService, PathService>();
             containerRegistry.RegisterSingleton<ITermService, TermService>();
             containerRegistry.RegisterSingleton<ICourseService, CourseService>();
+        }
+
+        protected override void InitializeShell(Window shell)
+        {
+            base.InitializeShell(shell);
+
+            var mainWindowViewModel = Container.Resolve<MainWindowViewModel>();
+            Application.Current.MainWindow.DataContext = mainWindowViewModel;
+            Application.Current.MainWindow.Show();
         }
     }
 }

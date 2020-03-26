@@ -19,7 +19,7 @@ namespace ProjectTracker.WPF.Views
         private void TvTodos_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var selectedItem = (TodoTreeViewItem)tvTodos.SelectedItem;
-            if(selectedItem != null)
+            if (selectedItem != null)
             {
                 selectedItem.IsSelected = false;
             }
@@ -59,11 +59,11 @@ namespace ProjectTracker.WPF.Views
 
         private void LvWebpageLinks_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if(e.Key == System.Windows.Input.Key.Enter)
+            if (e.Key == System.Windows.Input.Key.Enter)
             {
                 ((IProjectPageViewModel)DataContext).OpenWebpageLinks(lvWebpageLinks.SelectedItems);
             }
-            else if(e.Key == System.Windows.Input.Key.Delete)
+            else if (e.Key == System.Windows.Input.Key.Delete)
             {
                 ((IProjectPageViewModel)DataContext).DeletePaths(lvWebpageLinks.SelectedItems);
             }

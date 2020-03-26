@@ -23,11 +23,6 @@
 
     <Grid Background="Transparent"
           MouseDown="MainGrid_MouseDown">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50" MinHeight="50" />
-            <RowDefinition Height="60" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="2*" />
@@ -43,26 +38,7 @@
             </Style>
         </Grid.Resources>
 
-        <Border Grid.ColumnSpan="2" 
-                BorderThickness="0 1" BorderBrush="Black">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Back" Command="{Binding GoBackClickCommand}" 
-                        Width="50" Height="25"
-                        Margin="20 10 10 10"/>
-                <Label Content="{Binding Project.Title}" FontSize="20" FontWeight="SemiBold"
-                       VerticalAlignment="Center"/>
-            </StackPanel>
-        </Border>
-
-        <Button Grid.Row="1"
-                Content="Open project" Command="{Binding OpenProjectCommand}" 
-                HorizontalAlignment="Left" VerticalAlignment="Center"
-                Height="25" Width="100"
-                Margin="20 0"
-                FontWeight="Bold" FontSize="14"/>
-
-        <Border Grid.Row="2"
-                Margin="20 0 20 20"
+        <Border Margin="20 20 10 20"
                 Style="{StaticResource defaultBorder}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -194,284 +170,228 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2" Grid.Column="1"
-              Margin="20 0 20 20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="1*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="1*" />
-            </Grid.RowDefinitions>
+        <DockPanel Grid.Column="1">
+            <Grid DockPanel.Dock="Bottom">
+                <CheckBox x:Name="cbSelectAll" Content="Select all"
+                          HorizontalAlignment="Left" VerticalAlignment="Center"
+                          Margin="26 0 0 20"
+                          IsChecked="{Binding AllSelected}">
 
-            <Grid.Resources>
-                <Style x:Key="spTitle" TargetType="StackPanel">
-                    <Setter Property="Orientation" Value="Horizontal"/>
-                    <Setter Property="HorizontalAlignment" Value="Right"/>
-                </Style>
-                <Style x:Key="btnOpen" TargetType="Button" BasedOn="{StaticResource btnBase}">
-                    <Setter Property="Padding" Value="2 2 0 0"/>
-                </Style>
-            </Grid.Resources>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <i:InvokeCommandAction Command="{Binding SelectAllCommand}"
+                                                   CommandParameter="{Binding ElementName=cbSelectAll, Path=IsChecked}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </CheckBox>
 
-            <Border Grid.Column="0" Grid.Row="0"
-                    Margin="0 0 10 10"
-                    Style="{StaticResource defaultBorder}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" MinHeight="40" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                <Button Content="Open"
+                        Command="{Binding OpenProjectCommand}"
+                        HorizontalAlignment="Right"
+                        Width="60"
+                        Margin="0 0 25 20"/>
+            </Grid>
 
-                    <Label Content="Links"
-                           Style="{StaticResource labelTitle}"/>
-                    <StackPanel Style="{StaticResource spTitle}">
-                        <Button Content="{StaticResource openFolderIconLinks}"
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnOpen}"
-                                Command="{Binding OpenWebpageLinksCommand}"/>
-                        <Button Content="{StaticResource addIconLinks}"
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnAdd}"
-                                Command="{Binding AddWebpageLinkCommand}"/>
-                    </StackPanel>
+            <Grid>
+                <Border Margin="10 20 20 10"
+                        Style="{StaticResource defaultBorder}">
 
-                    <Border Grid.Row="1" 
-                            Style="{StaticResource titleBorder}">
-                        <ListView x:Name="lvWebpageLinks" ItemsSource="{Binding WebpageLinks}"
-                                  SelectedItem="{Binding SelectedWebpageLinkPath}"
-                                  KeyDown="LvWebpageLinks_KeyDown">
-
-                            <ListView.Resources>
-                                <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open" Click="LvWebpageLinks_OpenContextMenuItem_Click" />
-                                    <Separator/>
-                                    <MenuItem Header="Delete" Click="LvWebpageLinks_DeleteContextMenuItem_Click" />
-                                </ContextMenu>
-                            </ListView.Resources>
-
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" >
-                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <StackPanel.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="Black"/>
+                                    <Setter Property="BorderThickness" Value="0 0 0 0.5"/>
                                 </Style>
-                            </ListView.ItemContainerStyle>
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Margin" Value="10 5"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontSize" Value="14"/>
+                                </Style>
+                                <Style TargetType="ItemsControl">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Margin" Value="0 0 0 5"/>
+                                </Style>
+                                <Style x:Key="smallBtnAdd" TargetType="Button" BasedOn="{StaticResource btnAdd}">
+                                    <Setter Property="Height" Value="20" />
+                                    <Setter Property="FontSize" Value="15" />
+                                    <Setter Property="Padding" Value="2" />
+                                </Style>
+                                <DataTemplate x:Key="pathsTemplate">
                                     <StackPanel Orientation="Horizontal">
+                                        <CheckBox x:Name="cbOpenItem" IsChecked="{Binding Selected}" 
+                                                  VerticalAlignment="Center"
+                                                  Margin="5 0">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.CheckAllSelectionCommand}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </CheckBox>
                                         <Image Source="{Binding Icon}" />
-                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
-                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Path.Address}" Margin="3"/>
                                     </StackPanel>
                                 </DataTemplate>
-                            </ListView.ItemTemplate>
+                            </StackPanel.Resources>
 
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDoubleClick">
-                                    <i:InvokeCommandAction Command="{Binding OpenWebpageLinkCommand}"
-                                                           CommandParameter="{Binding ElementName=lvWebpageLinks, Path=SelectedItem}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </ListView>
-                    </Border>
-                </Grid>
-            </Border>
+                            <Border>
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" 
+                                            Content="{StaticResource addIconLinks}"
+                                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                            Style="{StaticResource smallBtnAdd}"
+                                            Command="{Binding AddWebpageLinkCommand}"/>
+                                    <TextBlock Text="Webpage links"/>
+                                </DockPanel>
+                            </Border>
+                            <ListView x:Name="lvWebpageLinks"
+                                      ItemsSource="{Binding WebpageLinks}"
+                                      ItemTemplate="{StaticResource pathsTemplate}"
+                                      KeyDown="LvWebpageLinks_KeyDown">
 
-            <Border Grid.Column="0" Grid.Row="1"
-                    Margin="0 10 10 0"
-                    Style="{StaticResource defaultBorder}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" MinHeight="40" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                                <ListView.Resources>
+                                    <ContextMenu x:Key="ItemContextMenu">
+                                        <MenuItem Header="Open" Click="LvWebpageLinks_OpenContextMenuItem_Click" />
+                                        <Separator/>
+                                        <MenuItem Header="Delete" Click="LvWebpageLinks_DeleteContextMenuItem_Click" />
+                                    </ContextMenu>
+                                </ListView.Resources>
 
-                    <Label Content="Files"
-                           Style="{StaticResource labelTitle}"/>
-                    <StackPanel Style="{StaticResource spTitle}">
-                        <Button Content="{StaticResource openFolderIconFiles}"
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnOpen}"
-                                Command="{Binding OpenFilePathsCommand}"/>
-                        <Button Content="{StaticResource addIconFolders}" 
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnAdd}"
-                                Command="{Binding AddFilePathCommand}"/>
-                    </StackPanel>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}" >
+                                        <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                        <Setter Property="ToolTip" Value="{Binding Path.Address}" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
 
-                    <Border Grid.Row="1"
-                            Style="{StaticResource titleBorder}">
-                        <ListView x:Name="lvFiles" ItemsSource="{Binding FilePaths}"
-                                  SelectedItem="{Binding SelectedFilePath}"
-                                  KeyDown="LvFiles_KeyDown">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding OpenWebpageLinkCommand}"
+                                                               CommandParameter="{Binding ElementName=lvWebpageLinks, Path=SelectedItem}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ListView>
 
-                            <ListView.Resources>
-                                <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open" Click="LvFiles_OpenContextMenuItem_Click" />
-                                    <Separator/>
-                                    <MenuItem Header="Delete" Click="LvFiles_DeleteContextMenuItem_Click" />
-                                </ContextMenu>
-                            </ListView.Resources>
+                            <Border>
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right"
+                                            Content="{StaticResource addIconFolders}" 
+                                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                            Style="{StaticResource smallBtnAdd}"
+                                            Command="{Binding AddFilePathCommand}"/>
+                                    <TextBlock Text="Files"/>
+                                </DockPanel>
+                            </Border>
+                            <ListView x:Name="lvFiles"
+                                      ItemsSource="{Binding FilePaths}"
+                                      ItemTemplate="{StaticResource pathsTemplate}"
+                                      KeyDown="LvFiles_KeyDown">
 
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" >
-                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
+                                <ListView.Resources>
+                                    <ContextMenu x:Key="ItemContextMenu">
+                                        <MenuItem Header="Open" Click="LvFiles_OpenContextMenuItem_Click" />
+                                        <Separator/>
+                                        <MenuItem Header="Delete" Click="LvFiles_DeleteContextMenuItem_Click" />
+                                    </ContextMenu>
+                                </ListView.Resources>
 
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding Icon}"/>
-                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}" >
+                                        <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                        <Setter Property="ToolTip" Value="{Binding Path.Address}" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
 
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDoubleClick">
-                                    <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
-                                                           CommandParameter="{Binding ElementName=lvFiles, Path=SelectedItem}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </ListView>
-                    </Border>
-                </Grid>
-            </Border>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
+                                                               CommandParameter="{Binding ElementName=lvFiles, Path=SelectedItem}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ListView>
 
-            <Border Grid.Column="1" Grid.Row="0"
-                    Margin="10 0 0 10"
-                    Style="{StaticResource defaultBorder}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" MinHeight="40" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                            <Border>
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right"
+                                            Content="{StaticResource addIconFiles}"
+                                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                            Style="{StaticResource smallBtnAdd}"
+                                            Command="{Binding AddFolderPathCommand}"/>
+                                    <TextBlock Text="Folders"/>
+                                </DockPanel>
+                            </Border>
+                            <ListView x:Name="lvFolders" 
+                                      ItemsSource="{Binding FolderPaths}"
+                                      ItemTemplate="{StaticResource pathsTemplate}"
+                                      KeyDown="LvFolders_KeyDown">
 
-                    <Label Content="Folders"
-                           Style="{StaticResource labelTitle}"/>
-                    <StackPanel Style="{StaticResource spTitle}">
-                        <Button Content="{StaticResource openFolderIconFolders}"
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnOpen}"
-                                Command="{Binding OpenFolderPathsCommand}"/>
-                        <Button Content="{StaticResource addIconFiles}"
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnAdd}"
-                                Command="{Binding AddFolderPathCommand}"/>
-                    </StackPanel>
+                                <ListView.Resources>
+                                    <ContextMenu x:Key="ItemContextMenu">
+                                        <MenuItem Header="Open" Click="LvFolders_OpenContextMenuItem_Click" />
+                                        <Separator/>
+                                        <MenuItem Header="Delete" Click="LvFolders_DeleteContextMenuItem_Click" />
+                                    </ContextMenu>
+                                </ListView.Resources>
 
-                    <Border Grid.Row="1"
-                            Style="{StaticResource titleBorder}">
-                        <ListView x:Name="lvFolders" ItemsSource="{Binding FolderPaths}"
-                                  SelectedItem="{Binding SelectedFolderPath}"
-                                  KeyDown="LvFolders_KeyDown">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}" >
+                                        <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                        <Setter Property="ToolTip" Value="{Binding Path.Address}" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
 
-                            <ListView.Resources>
-                                <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open" Click="LvFolders_OpenContextMenuItem_Click" />
-                                    <Separator/>
-                                    <MenuItem Header="Delete" Click="LvFolders_DeleteContextMenuItem_Click" />
-                                </ContextMenu>
-                            </ListView.Resources>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
+                                                               CommandParameter="{Binding ElementName=lvFolders, Path=SelectedItem}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ListView>
 
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" >
-                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate x:Name="projectItem">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding Icon}" />
-                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDoubleClick">
-                                    <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
-                                                           CommandParameter="{Binding ElementName=lvFolders, Path=SelectedItem}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </ListView>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <Border Grid.Column="1" Grid.Row="1"
-                    Margin="10 10 0 0"
-                    Style="{StaticResource defaultBorder}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" MinHeight="40" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Label Content="Apps"
-                           Style="{StaticResource labelTitle}"/>
-                    <StackPanel Style="{StaticResource spTitle}">
-                        <Button Content="{StaticResource openFolderIconApps}"
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnOpen}"
-                                Command="{Binding OpenApplicationPathsCommand}"/>
-                        <Button Content="{StaticResource addIconApps}"
-                                Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                Style="{StaticResource btnAdd}"
-                                Command="{Binding AddApplicationPathCommand}"/>
-                    </StackPanel>
-
-                    <Border Grid.Row="1"
-                            Style="{StaticResource titleBorder}">
-                        <ListView x:Name="lvApps" ItemsSource="{Binding ApplicationPaths}"
-                                  SelectedItem="{Binding SelectedAppPath}"
+                            <Border>
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right"
+                                            Content="{StaticResource addIconApps}"
+                                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                                            Style="{StaticResource smallBtnAdd}"
+                                            Command="{Binding AddApplicationPathCommand}"/>
+                                    <TextBlock Text="Applications"/>
+                                </DockPanel>
+                            </Border>
+                            <ListView x:Name="lvApps"
+                                      ItemsSource="{Binding ApplicationPaths}"
+                                      ItemTemplate="{StaticResource pathsTemplate}"
                                   KeyDown="LvApps_KeyDown">
 
-                            <ListView.Resources>
-                                <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Open" Click="LvApps_OpenContextMenuItem_Click" />
-                                    <Separator/>
-                                    <MenuItem Header="Delete" Click="LvApps_DeleteContextMenuItem_Click" />
-                                </ContextMenu>
-                            </ListView.Resources>
+                                <ListView.Resources>
+                                    <ContextMenu x:Key="ItemContextMenu">
+                                        <MenuItem Header="Open" Click="LvApps_OpenContextMenuItem_Click" />
+                                        <Separator/>
+                                        <MenuItem Header="Delete" Click="LvApps_DeleteContextMenuItem_Click" />
+                                    </ContextMenu>
+                                </ListView.Resources>
 
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" >
-                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                    <Setter Property="ToolTip" Value="{Binding Path.Address}" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}" >
+                                        <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                        <Setter Property="ToolTip" Value="{Binding Path.Address}" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
 
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding Icon}" />
-                                        <TextBlock Text="{Binding Path.Address}" Margin="3"
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDoubleClick">
-                                    <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
                                                            CommandParameter="{Binding ElementName=lvApps, Path=SelectedItem}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </ListView>
-                    </Border>
-                </Grid>
-            </Border>
-
-        </Grid>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ListView>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </DockPanel>
 
     </Grid>
 </UserControl>

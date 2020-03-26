@@ -25,13 +25,8 @@ namespace ProjectTracker.WPF.ViewModels
 {
     public class ProjectPageViewModel : BindableBase, INavigationAware, IProjectPageViewModel
     {
-        private readonly IRegionManager regionManager;
-        private IRegionNavigationService regionNavigationService;
         private ITodoService todoService;
         private IPathService pathService;
-
-        public DelegateCommand GoBackClickCommand { get; }
-        public DelegateCommand OpenProjectCommand { get; }
 
         private Project project;
         public Project Project
@@ -58,6 +53,7 @@ namespace ProjectTracker.WPF.ViewModels
         }
 
 
+        public DelegateCommand OpenProjectCommand { get; }
         public DelegateCommand<PathListViewItem> OpenWebpageLinkCommand { get; }
         public DelegateCommand<PathListViewItem> OpenPathCommand { get; }
 
@@ -153,15 +149,21 @@ namespace ProjectTracker.WPF.ViewModels
             }
         }
 
-
-        public ProjectPageViewModel(IRegionManager regionManager, ITodoService todoService, IPathService pathService)
+        private bool allSelected;
+        public bool AllSelected
         {
-            this.regionManager = regionManager;
+            get { return allSelected; }
+            set { SetProperty(ref allSelected, value); }
+        }
+
+        public DelegateCommand<bool?> SelectAllCommand { get; }
+        public DelegateCommand CheckAllSelectionCommand { get; }
+
+
+        public ProjectPageViewModel(ITodoService todoService, IPathService pathService)
+        {
             this.todoService = todoService;
             this.pathService = pathService;
-
-            GoBackClickCommand = new DelegateCommand(GoBackCommand);
-            OpenProjectCommand = new DelegateCommand(OpenProjectClicked);
 
             AddTodoCommand = new DelegateCommand<TodoTreeViewItem>(AddTodo);
             EditTodoCommand = new DelegateCommand<TodoTreeViewItem>(EditTodo);
@@ -173,41 +175,29 @@ namespace ProjectTracker.WPF.ViewModels
             TodoTreeViewItemsViewSource = CollectionViewSource.GetDefaultView(TodoTreeViewItems);
             TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.IsInProgress", ListSortDirection.Descending));
             TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.IsDone", ListSortDirection.Ascending));
+            TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("HasDeadline", ListSortDirection.Descending));
             TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.Deadline", ListSortDirection.Ascending));
             TodoTreeViewItemsViewSource.SortDescriptions.Add(new SortDescription("Todo.Text", ListSortDirection.Ascending));
 
+            OpenProjectCommand = new DelegateCommand(OpenProject);
             OpenWebpageLinkCommand = new DelegateCommand<PathListViewItem>(OpenWebpageLink);
             OpenPathCommand = new DelegateCommand<PathListViewItem>(OpenPath);
 
             WebpageLinks = new ObservableCollection<PathListViewItem>();
             AddWebpageLinkCommand = new DelegateCommand(AddWebpageLink);
-            OpenWebpageLinksCommand = new DelegateCommand(OpenWebpageLinksClicked);
-            
+
             FilePaths = new ObservableCollection<PathListViewItem>();
             AddFilePathCommand = new DelegateCommand(AddFilePath);
-            OpenFilePathsCommand = new DelegateCommand(OpenFilePathsClicked);
 
             FolderPaths = new ObservableCollection<PathListViewItem>();
             AddFolderPathCommand = new DelegateCommand(AddFolderPath);
-            OpenFolderPathsCommand = new DelegateCommand(OpenFolderPathsClicked);
 
             ApplicationPaths = new ObservableCollection<PathListViewItem>();
             AddApplicationPathCommand = new DelegateCommand(AddApplicationPath);
-            OpenApplicationPathsCommand = new DelegateCommand(OpenApplicationPathsClicked);
-        }
 
-        private void GoBackCommand()
-        {
-            if (regionNavigationService.Journal.CanGoBack)
-            {
-                regionNavigationService.Journal.GoBack();
-            }
-            else
-            {
-                regionManager.RequestNavigate("MainRegion", "StartPage");
-            }
+            SelectAllCommand = new DelegateCommand<bool?>(SelectAll);
+            CheckAllSelectionCommand = new DelegateCommand(CheckAllSelection);
         }
-
 
         private void AddTodo(TodoTreeViewItem item)
         {
@@ -283,6 +273,81 @@ namespace ProjectTracker.WPF.ViewModels
             await todoService.UpdateTodoAsync(item.Todo);
         }
 
+        private void OpenProject()
+        {
+            OpenWebpageLinks();
+            OpenPaths();
+        }
+        private void OpenWebpageLinks()
+        {
+            foreach (var path in WebpageLinks)
+            {
+                if (path.Selected)
+                {
+                    OpenWebpageLink(path.Path);
+                }
+            }
+        }
+        private void OpenPaths()
+        {
+            foreach (var path in FilePaths.Concat(FolderPaths).Concat(ApplicationPaths))
+            {
+                if (path.Selected)
+                {
+                    OpenPath(path.Path);
+                }
+            }
+        }
+
+        public void OpenWebpageLinks(IList selectedPaths)
+        {
+            foreach (var path in selectedPaths)
+            {
+                var pathListViewItem = (PathListViewItem)path;
+
+                OpenWebpageLink(pathListViewItem.Path);
+            }
+        }
+        private void OpenWebpageLink(PathListViewItem selectedPath)
+        {
+            if (selectedPath != null)
+            {
+                OpenWebpageLink(selectedPath.Path);
+            }
+        }
+
+        public void OpenPaths(IList selectedPaths)
+        {
+            foreach (var path in selectedPaths)
+            {
+                var pathListViewItem = (PathListViewItem)path;
+
+                OpenPath(pathListViewItem.Path);
+            }
+        }
+        private void OpenPath(PathListViewItem selectedPath)
+        {
+            if (selectedPath != null)
+            {
+                OpenPath(selectedPath.Path);
+            }
+        }
+
+        private void OpenWebpageLink(Path path)
+        {
+            pathService.OpenWebpageLink(path);
+        }
+        private void OpenPath(Path path)
+        {
+            try
+            {
+                pathService.OpenPath(path);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Path does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
 
         private void AddWebpageLink()
         {
@@ -368,134 +433,6 @@ namespace ProjectTracker.WPF.ViewModels
 
         }
 
-        private void OpenProjectClicked()
-        {
-            var dialogViewModel = new OpenProjectDialogViewModel();
-            dialogViewModel.AddWebpageLinks(WebpageLinks);
-            dialogViewModel.AddFilePaths(FilePaths);
-            dialogViewModel.AddFolderPaths(FolderPaths);
-            dialogViewModel.AddApplicationPaths(ApplicationPaths);
-
-            if (dialogViewModel.ShowDialog() == false)
-                return;
-
-            OpenWebpageLinks(dialogViewModel.WebpageLinks);
-            OpenPaths(dialogViewModel.FilePaths);
-            OpenPaths(dialogViewModel.FolderPaths);
-            OpenPaths(dialogViewModel.ApplicationPaths);            
-        }
-        private void OpenWebpageLinksClicked()
-        {
-            var dialogViewModel = new OpenProjectDialogViewModel();
-            dialogViewModel.AddWebpageLinks(WebpageLinks);
-
-            if (dialogViewModel.ShowDialog() == false)
-                return;
-
-            OpenWebpageLinks(dialogViewModel.WebpageLinks);
-        }
-        private void OpenFilePathsClicked()
-        {
-            var dialogViewModel = new OpenProjectDialogViewModel();
-            dialogViewModel.AddFilePaths(FilePaths);
-
-            if (dialogViewModel.ShowDialog() == false)
-                return;
-
-            OpenPaths(dialogViewModel.FilePaths);
-        }
-        private void OpenFolderPathsClicked()
-        {
-            var dialogViewModel = new OpenProjectDialogViewModel();
-            dialogViewModel.AddFolderPaths(FolderPaths);
-
-            if (dialogViewModel.ShowDialog() == false)
-                return;
-
-            OpenPaths(dialogViewModel.FolderPaths);
-        }
-        private void OpenApplicationPathsClicked()
-        {
-            var dialogViewModel = new OpenProjectDialogViewModel();
-            dialogViewModel.AddApplicationPaths(ApplicationPaths);
-
-            if (dialogViewModel.ShowDialog() == false)
-                return;
-
-            OpenPaths(dialogViewModel.ApplicationPaths);
-        }
-
-        private void OpenWebpageLinks(List<PathToOpen> webpageLinks)
-        {
-            foreach (var pathToOpen in webpageLinks)
-            {
-                if (pathToOpen.Open)
-                {
-                    OpenWebpageLink(pathToOpen.Path);
-                }
-            }
-        }
-        private void OpenPaths(List<PathToOpen> paths)
-        {
-            foreach (var pathToOpen in paths)
-            {
-                if (pathToOpen.Open)
-                {
-                    OpenPath(pathToOpen.Path);
-                }
-            }
-        }
-
-        public void OpenWebpageLinks(IList selectedPaths)
-        {
-            foreach (var path in selectedPaths)
-            {
-                var pathListViewItem = (PathListViewItem)path;
-
-                OpenWebpageLink(pathListViewItem.Path);
-            }
-        }
-        private void OpenWebpageLink(PathListViewItem selectedPath)
-        {
-            if (selectedPath != null)
-            {
-                OpenWebpageLink(selectedPath.Path);
-            }
-        }
-
-        public void OpenPaths(IList selectedPaths)
-        {
-            foreach (var path in selectedPaths)
-            {
-                var pathListViewItem = (PathListViewItem)path;
-
-                OpenPath(pathListViewItem.Path);
-            }
-        }
-        private void OpenPath(PathListViewItem selectedPath)
-        {
-            if (selectedPath != null)
-            {
-                OpenPath(selectedPath.Path);
-            }
-        }
-
-        private void OpenWebpageLink(Path path)
-        {
-            pathService.OpenWebpageLink(path);
-        }
-        private void OpenPath(Path path)
-        {
-            try
-            {
-                pathService.OpenPath(path);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Path does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }       
-        
         public async void DeletePaths(IList selectedItems)
         {
             if (selectedItems.Count == 0)
@@ -554,10 +491,69 @@ namespace ProjectTracker.WPF.ViewModels
             return null;
         }
 
+        private void SelectAll(bool? isChecked)
+        {
+            foreach (var item in WebpageLinks)
+            {
+                item.Selected = isChecked.Value;
+            }
+            foreach (var item in FilePaths)
+            {
+                item.Selected = isChecked.Value;
+            }
+            foreach (var item in FolderPaths)
+            {
+                item.Selected = isChecked.Value;
+            }
+            foreach (var item in ApplicationPaths)
+            {
+                item.Selected = isChecked.Value;
+            }
+        }
+        private void CheckAllSelection()
+        {
+            foreach (var item in WebpageLinks)
+            {
+                if (item.Selected == false)
+                {
+                    AllSelected = false;
+
+                    return;
+                }
+            }
+            foreach (var item in FilePaths)
+            {
+                if (item.Selected == false)
+                {
+                    AllSelected = false;
+
+                    return;
+                }
+            }
+            foreach (var item in FolderPaths)
+            {
+                if (item.Selected == false)
+                {
+                    AllSelected = false;
+
+                    return;
+                }
+            }
+            foreach (var item in ApplicationPaths)
+            {
+                if (item.Selected == false)
+                {
+                    AllSelected = false;
+
+                    return;
+                }
+            }
+
+            AllSelected = true;
+        }
+
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            regionNavigationService = navigationContext.NavigationService;
-
             TodoTreeViewItems.Clear();
             WebpageLinks.Clear();
             FilePaths.Clear();

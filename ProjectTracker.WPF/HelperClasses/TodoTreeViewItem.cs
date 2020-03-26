@@ -29,6 +29,8 @@ namespace ProjectTracker.WPF.HelperClasses
 
         public Todo Todo { get; }
 
+        public bool HasDeadline { get { return Todo.Deadline.HasValue; } }
+
         public TreeViewItemsObservableCollection Children { get; }
         public ICollectionView ChildrenViewSource { get; }
 
@@ -43,6 +45,7 @@ namespace ProjectTracker.WPF.HelperClasses
             ChildrenViewSource = CollectionViewSource.GetDefaultView(Children);
             ChildrenViewSource.SortDescriptions.Add(new SortDescription("Todo.IsInProgress", ListSortDirection.Descending));
             ChildrenViewSource.SortDescriptions.Add(new SortDescription("Todo.IsDone", ListSortDirection.Ascending));
+            ChildrenViewSource.SortDescriptions.Add(new SortDescription("HasDeadline", ListSortDirection.Descending));
             ChildrenViewSource.SortDescriptions.Add(new SortDescription("Todo.Deadline", ListSortDirection.Ascending));
             ChildrenViewSource.SortDescriptions.Add(new SortDescription("Todo.Text", ListSortDirection.Ascending));
         }

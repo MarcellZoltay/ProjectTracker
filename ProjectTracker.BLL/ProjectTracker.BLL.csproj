@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="Models\Bindable.cs" />
     <Compile Include="Models\Course.cs" />
+    <Compile Include="Models\Event.cs" />
     <Compile Include="Models\Path.cs" />
     <Compile Include="Models\Project.cs" />
     <Compile Include="Models\Term.cs" />
