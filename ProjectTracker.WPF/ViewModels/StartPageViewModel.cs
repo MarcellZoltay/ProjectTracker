@@ -3,14 +3,17 @@ using Prism.Mvvm;
 using Prism.Regions;
 using ProjectTracker.BLL.Models;
 using ProjectTracker.BLL.Services.Interfaces;
+using ProjectTracker.WPF.Constants;
 using ProjectTracker.WPF.HelperClasses;
 using ProjectTracker.WPF.ViewModels.DialogViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Unity;
@@ -32,7 +35,7 @@ namespace ProjectTracker.WPF.ViewModels
         private ITodoService todoService;
 
         public ItemsChangeObservableCollection<Project> Projects { get; }
-        public ProjectExpandablesObservationCollection ProjectExpandables { get; }
+        //public ProjectExpandablesObservationCollection ProjectExpandables { get; }
 
         private Project selectedProject;
         public Project SelectedProject
@@ -62,6 +65,9 @@ namespace ProjectTracker.WPF.ViewModels
         public DelegateCommand<TodoTreeViewItem> IsInProgressClickedCommand { get; }
 
 
+        //public ObservableCollection<DeadlineListItem> Deadlines { get; set; }
+        //public ObservableCollection<Event> Events { get; set; }
+
         public StartPageViewModel(IRegionManager regionManager, IProjectService projectService, ITodoService todoService)
         {
             this.regionManager = regionManager;
@@ -74,14 +80,26 @@ namespace ProjectTracker.WPF.ViewModels
             DeleteProjectCommand = new DelegateCommand<Project>(DeleteProject);
 
             Projects = new ItemsChangeObservableCollection<Project>();
-            ProjectExpandables = new ProjectExpandablesObservationCollection();
+            //ProjectExpandables = new ProjectExpandablesObservationCollection();
+
+            //Deadlines = new ObservableCollection<DeadlineListItem>();
+
+            //Events = new ObservableCollection<Event>()
+            //{
+            //    //new Event("probaaaaaaaaa 1", new DateTime(2020, 02, 20, 12, 0, 0), new DateTime(2020, 02, 20, 13, 0, 0)),
+            //    //new Event("probaaaaaaaaaa 2", new DateTime(2020, 02, 20, 14, 0, 0), new DateTime(2020, 02, 20, 16, 0, 0)),
+            //    //new Event("probaaaaaaaaaa 1", new DateTime(2020, 02, 21, 12, 0, 0), new DateTime(2020, 02, 21, 13, 0, 0)),
+            //    //new Event("probaaaaaaaa 2", new DateTime(2020, 02, 21, 14, 0, 0), new DateTime(2020, 02, 21, 16, 0, 0)),
+            //    //new Event("proba 1", new DateTime(2020, 02, 21, 12, 0, 0), new DateTime(2020, 02, 22, 13, 0, 0)),
+            //    //new Event("proba 2", new DateTime(2020, 02, 21, 14, 0, 0), new DateTime(2020, 02, 22, 16, 0, 0)),
+            //};
 
             this.projectService = projectService;
             this.todoService = todoService;
 
-            EditTodoCommand = new DelegateCommand<TodoTreeViewItem>(EditTodo);
-            IsDoneClickedCommand = new DelegateCommand<Todo>(IsDoneClicked);
-            IsInProgressClickedCommand = new DelegateCommand<TodoTreeViewItem>(IsInProgressClicked);
+            //EditTodoCommand = new DelegateCommand<TodoTreeViewItem>(EditTodo);
+            //IsDoneClickedCommand = new DelegateCommand<Todo>(IsDoneClicked);
+            //IsInProgressClickedCommand = new DelegateCommand<TodoTreeViewItem>(IsInProgressClicked);
 
             var currentDispatcher = Dispatcher.CurrentDispatcher;
             var taskProjects = Task.Run(() =>
@@ -97,7 +115,11 @@ namespace ProjectTracker.WPF.ViewModels
                         currentDispatcher.Invoke(new Action(() =>
                         {
                             Projects.AddRange(projects);
-                            ProjectExpandables.AddRange(projects.ConvertToProjectExpandables());
+                            //foreach (var project in Projects)
+                            //{
+                            //    var todos = project.Todos.Flatten();
+                            //    Deadlines.AddRange(todos.ToDeadlineListItem(project.Title));
+                            //}
 
                             IsLoading = false;
                             IsListEmtpy = Projects.Count == 0;
@@ -132,7 +154,7 @@ namespace ProjectTracker.WPF.ViewModels
 
                 IsListEmtpy = false;
                 Projects.Add(project);
-                ProjectExpandables.Add(new ProjectExpandable(project));
+                //ProjectExpandables.Add(new ProjectExpandable(project));
             }
 
             SelectedProject = null;
@@ -143,8 +165,9 @@ namespace ProjectTracker.WPF.ViewModels
             {
                 var navigationParameters = new NavigationParameters();
                 navigationParameters.Add("project", project);
+                navigationParameters.Add("title", project.Title);
 
-                regionManager.RequestNavigate("MainRegion", "ProjectPage", navigationParameters);
+                regionManager.RequestNavigate(RegionNames.MainRegion, PageNames.ProjectPage, navigationParameters);
 
                 SelectedProject = null;
             }
@@ -165,13 +188,13 @@ namespace ProjectTracker.WPF.ViewModels
         {
             var result = MessageBox.Show($"Are you sure you want to delete {project.Title}?", "Delete project", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
 
-            if(result == MessageBoxResult.OK)
+            if (result == MessageBoxResult.OK)
             {
                 Projects.Remove(project);
                 IsListEmtpy = Projects.Count == 0;
 
-                var projectExpandable = ProjectExpandables.Where(p => p.Project == project).First();
-                ProjectExpandables.Remove(projectExpandable);
+                //var projectExpandable = ProjectExpandables.Where(p => p.Project == project).First();
+                //ProjectExpandables.Remove(projectExpandable);
 
                 await projectService.DeleteProjectAsync(project);
             }
@@ -190,7 +213,7 @@ namespace ProjectTracker.WPF.ViewModels
                 await todoService.UpdateTodoAsync(item.Todo);
             }
         }
-        
+
         private async void IsDoneClicked(Todo todo)
         {
             await todoService.UpdateTodoAsync(todo);
@@ -206,8 +229,8 @@ namespace ProjectTracker.WPF.ViewModels
             {
                 var project = (Project)navigationContext.Parameters["project"];
 
-                var projectExpandable = ProjectExpandables.Where(p => p.Project == project).First();
-                projectExpandable.RefreshTodos();
+                //var projectExpandable = ProjectExpandables.Where(p => p.Project == project).First();
+                //projectExpandable.RefreshTodos();
             }
         }
         public void OnNavigatedFrom(NavigationContext navigationContext)

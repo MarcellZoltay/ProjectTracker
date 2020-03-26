@@ -1,4 +1,5 @@
-﻿using ProjectTracker.BLL.Models;
+﻿using Prism.Mvvm;
+using ProjectTracker.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +9,18 @@ using System.Windows.Media.Imaging;
 
 namespace ProjectTracker.WPF.HelperClasses
 {
-    public class PathListViewItem
+    public class PathListViewItem : BindableBase
     {
+        private bool selected;
+        public bool Selected
+        {
+            get { return selected; }
+            set { SetProperty(ref selected, value); }
+        }
+
         public BitmapSource Icon { get; set; }
-        public Path Path { get; private set; }
+
+        public Path Path { get; }
 
         public PathListViewItem(Path path, BitmapSource icon)
         {

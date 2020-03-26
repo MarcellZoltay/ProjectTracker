@@ -18,6 +18,7 @@ namespace ProjectTracker.BLL.Models
         }
 
         public List<Todo> Todos { get; }
+        public List<Event> Events { get; }
         public List<Path> WebpageLinks { get; }
         public List<Path> FilePaths { get; }
         public List<Path> FolderPaths { get; }
@@ -28,6 +29,7 @@ namespace ProjectTracker.BLL.Models
             Title = title;
 
             Todos = new List<Todo>();
+            Events = new List<Event>();
             WebpageLinks = new List<Path>();
             FilePaths = new List<Path>();
             FolderPaths = new List<Path>();

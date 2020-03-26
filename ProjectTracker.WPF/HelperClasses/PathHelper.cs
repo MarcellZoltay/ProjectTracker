@@ -32,18 +32,6 @@ namespace ProjectTracker.WPF.HelperClasses
 
             return result;
         }
-        
-        public static IEnumerable<PathToOpen> ConvertToPathToOpenItems(this IEnumerable<PathListViewItem> paths)
-        {
-            var result = new List<PathToOpen>();
-
-            foreach (var item in paths)
-            {
-                result.Add(new PathToOpen(item.Path, item.Icon));
-            }
-
-            return result;
-        }
 
     }
 }
