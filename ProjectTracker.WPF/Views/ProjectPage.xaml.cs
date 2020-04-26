@@ -51,6 +51,8 @@ namespace ProjectTracker.WPF.Views
                 selectedItem.IsSelected = false;
             }
 
+            lvDeadlines.UnselectAll();
+            lvEvents.UnselectAll();
             lvWebpageLinks.UnselectAll();
             lvFiles.UnselectAll();
             lvFolders.UnselectAll();

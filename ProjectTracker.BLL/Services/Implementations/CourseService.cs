@@ -14,13 +14,13 @@ namespace ProjectTracker.BLL.Services.Implementations
     {
         private ICourseEntityService courseEntityService;
         private IProjectService projectService;
-        private ITodoService todoService;
+        private IEventService eventService;
 
         public CourseService()
         {
             courseEntityService = UnityBootstrapper.Instance.Resolve<ICourseEntityService>();
             projectService = UnityBootstrapper.Instance.Resolve<IProjectService>();
-            todoService = UnityBootstrapper.Instance.Resolve<ITodoService>();
+            eventService = UnityBootstrapper.Instance.Resolve<IEventService>();
         }
 
         public List<Course> GetCoursesByTermId(int termId)
@@ -81,73 +81,33 @@ namespace ProjectTracker.BLL.Services.Implementations
             await Task.Run(() => DeleteCourse(courseToDelete));
         }
 
-        public void ImportLessonTodo(Course course, DateTime startDate, string lessonType, string venue)
+        public void ImportLessonEvent(Course course, DateTime startTime, DateTime endTime, string lessonType, string venue)
         {
-            var todos = course.Todos;
+            var events = course.Events;
 
             if (lessonType.Contains("E"))
             {
-                Todo lecturesTodo = todos.Where(t => t.Text.Contains($"Előadások - {venue}")).FirstOrDefault();
-                if (lecturesTodo == null)
-                {
-                    lecturesTodo = new Todo($"Előadások - {venue}");
-                    todos.Add(lecturesTodo);
-
-                    todoService.AddTodoToProject(course.Project.Id, lecturesTodo);
-                }
-
-                var lecture = new Todo("Előadás") { Deadline = startDate };
-                lecturesTodo.AddTodo(lecture);
-
-                todoService.AddSubTodo(lecturesTodo.Id, lecture);
+                var lecture = new Event($"Előadás - {venue}", startTime, endTime);
+                events.Add(lecture);
+                eventService.AddEventToProject(course.Project.Id, lecture);
             }
             else if (lessonType.Contains("G"))
             {
-                Todo practicesTodo = todos.Where(t => t.Text.Contains($"Gyakorlatok - {venue}")).FirstOrDefault();
-                if (practicesTodo == null)
-                {
-                    practicesTodo = new Todo($"Gyakorlatok - {venue}");
-                    todos.Add(practicesTodo);
-
-                    todoService.AddTodoToProject(course.Project.Id, practicesTodo);
-                }
-
-                var practice = new Todo("Gyakorlat") { Deadline = startDate };
-                practicesTodo.AddTodo(practice);
-
-                todoService.AddSubTodo(practicesTodo.Id, practice);
+                var practice = new Event($"Gyakorlat - {venue}", startTime, endTime);
+                events.Add(practice);
+                eventService.AddEventToProject(course.Project.Id, practice);
             }
             else if (lessonType.Contains("L"))
             {
-                Todo laboratoriesTodo = todos.Where(t => t.Text.Contains($"Laborok - {venue}")).FirstOrDefault();
-                if (laboratoriesTodo == null)
-                {
-                    laboratoriesTodo = new Todo($"Laborok - {venue}");
-                    todos.Add(laboratoriesTodo);
-
-                    todoService.AddTodoToProject(course.Project.Id, laboratoriesTodo);
-                }
-
-                var laboratory = new Todo("Labor") { Deadline = startDate };
-                laboratoriesTodo.AddTodo(laboratory);
-
-                todoService.AddSubTodo(laboratoriesTodo.Id, laboratory);
+                var laboratory = new Event($"Labor - {venue}", startTime, endTime);
+                events.Add(laboratory);
+                eventService.AddEventToProject(course.Project.Id, laboratory);
             }
             else
             {
-                Todo otherLessonsTodo = todos.Where(t => t.Text.Contains($"Egyéb órák - {venue}")).FirstOrDefault();
-                if (otherLessonsTodo == null)
-                {
-                    otherLessonsTodo = new Todo($"Egyéb órák - {venue}");
-                    todos.Add(otherLessonsTodo);
-
-                    todoService.AddTodoToProject(course.Project.Id, otherLessonsTodo);
-                }
-
-                var otherLessons = new Todo("Egyéb") { Deadline = startDate };
-                otherLessonsTodo.AddTodo(otherLessons);
-
-                todoService.AddSubTodo(otherLessonsTodo.Id, otherLessons);
+                var otherLesson = new Event($"Egyéb - {venue}", startTime, endTime);
+                events.Add(otherLesson);
+                eventService.AddEventToProject(course.Project.Id, otherLesson);
             }
         }
 

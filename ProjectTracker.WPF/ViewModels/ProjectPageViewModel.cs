@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO.Packaging;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,8 @@ namespace ProjectTracker.WPF.ViewModels
 {
     public class ProjectPageViewModel : BindableBase, INavigationAware, IProjectPageViewModel
     {
+        private IDeadlineService deadlineService;
+        private IEventService eventService;
         private ITodoService todoService;
         private IPathService pathService;
 
@@ -33,6 +36,36 @@ namespace ProjectTracker.WPF.ViewModels
         {
             get { return project; }
             private set { SetProperty(ref project, value); }
+        }
+
+        // Deadlines
+        public DelegateCommand AddDeadlineCommand { get; }
+        public DelegateCommand<Deadline> EditDeadlineCommand { get; }
+        public DelegateCommand<Deadline> DeleteDeadlineCommand { get; }
+        public DelegateCommand<Deadline> IsCompletedClickedCommand { get; set; }
+
+        public ObservableCollection<Deadline> Deadlines { get; }
+
+        private bool isDeadlineListEmpty;
+        public bool IsDeadlineListEmpty
+        {
+            get { return isDeadlineListEmpty; }
+            set { SetProperty(ref isDeadlineListEmpty, value); }
+        }
+
+        // Events
+        public DelegateCommand AddEventCommand { get; }
+        public DelegateCommand<Event> EditEventCommand { get; }
+        public DelegateCommand<Event> DeleteEventCommand { get; }
+        public DelegateCommand<Event> WasPresentClickedCommand { get; set; }
+
+        public ObservableCollection<Event> Events { get; }
+
+        private bool isEventListEmpty;
+        public bool IsEventListEmpty
+        {
+            get { return isEventListEmpty; }
+            set { SetProperty(ref isEventListEmpty, value); }
         }
 
         // To-do treeview
@@ -160,10 +193,27 @@ namespace ProjectTracker.WPF.ViewModels
         public DelegateCommand CheckAllSelectionCommand { get; }
 
 
-        public ProjectPageViewModel(ITodoService todoService, IPathService pathService)
+        public ProjectPageViewModel(IDeadlineService deadlineService,
+                                    IEventService eventService,
+                                    ITodoService todoService,
+                                    IPathService pathService)
         {
+            this.deadlineService = deadlineService;
+            this.eventService = eventService;
             this.todoService = todoService;
             this.pathService = pathService;
+
+            AddDeadlineCommand = new DelegateCommand(AddDeadline);
+            EditDeadlineCommand = new DelegateCommand<Deadline>(EditDeadline);
+            DeleteDeadlineCommand = new DelegateCommand<Deadline>(DeleteDeadline);
+            IsCompletedClickedCommand = new DelegateCommand<Deadline>(IsCompletedClicked);
+            Deadlines = new ObservableCollection<Deadline>();
+
+            AddEventCommand = new DelegateCommand(AddEvent);
+            EditEventCommand = new DelegateCommand<Event>(EditEvent);
+            DeleteEventCommand = new DelegateCommand<Event>(DeleteEvent);
+            WasPresentClickedCommand = new DelegateCommand<Event>(WasPresentClicked);
+            Events = new ObservableCollection<Event>();
 
             AddTodoCommand = new DelegateCommand<TodoTreeViewItem>(AddTodo);
             EditTodoCommand = new DelegateCommand<TodoTreeViewItem>(EditTodo);
@@ -197,6 +247,97 @@ namespace ProjectTracker.WPF.ViewModels
 
             SelectAllCommand = new DelegateCommand<bool?>(SelectAll);
             CheckAllSelectionCommand = new DelegateCommand(CheckAllSelection);
+        }
+
+        private void AddDeadline()
+        {
+            var dialogViewModel = new DeadlineDialogViewModel();
+            if (dialogViewModel.ShowDialog() == true)
+            {
+                var deadline = new Deadline(dialogViewModel.Text, dialogViewModel.Time.Value);
+
+                deadlineService.AddDeadlineToProject(Project.Id, deadline);
+
+                Project.AddDeadline(deadline);
+                Deadlines.Add(deadline);
+
+                IsDeadlineListEmpty = false;
+            }
+        }
+        private async void EditDeadline(Deadline deadline)
+        {
+            var dialogViewModel = new DeadlineDialogViewModel(deadline.Text, deadline.Time);
+            if (dialogViewModel.ShowDialog() == true)
+            {
+                deadline.Text = dialogViewModel.Text;
+                deadline.Time = dialogViewModel.Time.Value;
+
+                await deadlineService.UpdateDeadlineAsync(deadline);
+            }
+        }
+        private async void DeleteDeadline(Deadline deadline)
+        {
+            var result = MessageBox.Show($"Are you sure you want to delete this deadline?", "Delete deadline", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.OK)
+            {
+                Project.RemoveDeadline(deadline);
+                Deadlines.Remove(deadline);
+
+                IsDeadlineListEmpty = Deadlines.Count == 0;
+
+                await deadlineService.DeleteDeadlineAsync(deadline);
+            }
+        }
+        private async void IsCompletedClicked(Deadline deadline)
+        {
+            await deadlineService.UpdateDeadlineAsync(deadline);
+        }
+
+        private void AddEvent()
+        {
+            var dialogViewModel = new EventDialogViewModel();
+            if (dialogViewModel.ShowDialog() == true)
+            {
+                var @event = new Event(dialogViewModel.Text, dialogViewModel.StartTime.Value, dialogViewModel.EndTime.Value);
+
+                eventService.AddEventToProject(Project.Id, @event);
+
+                Project.AddEvent(@event);
+                Events.Add(@event);
+
+                IsEventListEmpty = false;
+            }
+        }
+        private async void EditEvent(Event @event)
+        {
+            var dialogViewModel = new EventDialogViewModel(@event.Text, @event.StartTime, @event.EndTime);
+            if (dialogViewModel.ShowDialog() == true)
+            {
+                @event.Text = dialogViewModel.Text;
+                @event.StartTime = dialogViewModel.StartTime.Value;
+                @event.EndTime = dialogViewModel.EndTime.Value;
+
+                await eventService.UpdateEventAsync(@event);
+            }
+        }
+        private async void DeleteEvent(Event @event)
+        {
+            var result = MessageBox.Show($"Are you sure you want to delete this event?", "Delete event", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.OK)
+            {
+                Project.RemoveEvent(@event);
+                Events.Remove(@event);
+
+                IsEventListEmpty = Events.Count == 0;
+
+                await eventService.DeleteEventAsync(@event);
+            }
+        }
+        private async void WasPresentClicked(Event @event)
+        {
+            await eventService.UpdateEventAsync(@event);
         }
 
         private void AddTodo(TodoTreeViewItem item)
@@ -554,6 +695,8 @@ namespace ProjectTracker.WPF.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
+            Deadlines.Clear();
+            Events.Clear();
             TodoTreeViewItems.Clear();
             WebpageLinks.Clear();
             FilePaths.Clear();
@@ -564,8 +707,13 @@ namespace ProjectTracker.WPF.ViewModels
 
             Project = project;
 
-            TodoTreeViewItems.AddRange(project.Todos.ConvertToTreeViewItems());
+            Deadlines.AddRange(Project.Deadlines);
+            IsDeadlineListEmpty = Deadlines.Count == 0;
 
+            Events.AddRange(Project.Events);
+            IsEventListEmpty = Events.Count == 0;
+
+            TodoTreeViewItems.AddRange(project.Todos.ConvertToTreeViewItems());
             IsTodoTreeViewEmtpy = TodoTreeViewItems.Count == 0;
 
             var webPageLinks = Project.WebpageLinks;

@@ -6,7 +6,6 @@ using ProjectTracker.BLL.Models;
 using ProjectTracker.BLL.Services.Interfaces;
 using ProjectTracker.WPF.Constants;
 using ProjectTracker.WPF.HelperClasses;
-using ProjectTracker.WPF.ViewModels.DialogViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,14 +27,16 @@ namespace ProjectTracker.WPF.ViewModels
 
         private readonly IRegionManager regionManager;
 
-        public DelegateCommand<Course> OpenCourseCommand { get; }
-        //public DelegateCommand<TermListViewItem> AddCourseCommand { get; }
-        public DelegateCommand<Course> EditCourseCommand { get; }
-        public DelegateCommand<Course> DeleteCourseCommand { get; }
-        //public DelegateCommand<TermListViewItem> ImportLessonsAsTodosFromExcelCommand { get; }
+        private string pageTitle;
+        public string PageTitle
+        {
+            get { return pageTitle; }
+            set { SetProperty(ref pageTitle, value); }
+        }
 
-        private ITermService termService;
-        private ICourseService courseService;
+        public DelegateCommand<TermListViewItem> OpenTermCommand { get; }
+        public DelegateCommand<Course> OpenCourseCommand { get; }
+
 
         public ObservableCollection<TermListViewItem> TermsListViewItems { get; }
 
@@ -46,13 +47,6 @@ namespace ProjectTracker.WPF.ViewModels
             set { SetProperty(ref selectedCourse, value); }
         }
 
-        private string courseTitle;
-        public string CourseTitle
-        {
-            get { return courseTitle; }
-            set { SetProperty(ref courseTitle, value); }
-        }
-
         private bool isLoading = true;
         public bool IsLoading
         {
@@ -60,17 +54,12 @@ namespace ProjectTracker.WPF.ViewModels
             set { SetProperty(ref isLoading, value); }
         }
 
-        public BMEPageViewModel(IRegionManager regionManager, ITermService termService, ICourseService courseService)
+        public BMEPageViewModel(IRegionManager regionManager, ITermService termService)
         {
             this.regionManager = regionManager;
-            this.termService = termService;
-            this.courseService = courseService;
 
+            OpenTermCommand = new DelegateCommand<TermListViewItem>(OpenTerm);
             OpenCourseCommand = new DelegateCommand<Course>(OpenCourse);
-            //AddCourseCommand = new DelegateCommand<TermListViewItem>(AddCourse);
-            EditCourseCommand = new DelegateCommand<Course>(EditCourse);
-            DeleteCourseCommand = new DelegateCommand<Course>(DeleteCourse);
-            //ImportLessonsAsTodosFromExcelCommand = new DelegateCommand<TermListViewItem>(ImportLessonsAsTodosFromExcel);
 
             TermsListViewItems = new ObservableCollection<TermListViewItem>();
 
@@ -104,11 +93,24 @@ namespace ProjectTracker.WPF.ViewModels
             });
         }
 
+        private void OpenTerm(TermListViewItem termListViewItem)
+        {
+            if (termListViewItem != null)
+            {
+                PageTitle = termListViewItem.Term.Title;
+
+                var navigationParameters = new NavigationParameters();
+                navigationParameters.Add("termListViewItem", termListViewItem);
+
+                regionManager.RequestNavigate(RegionNames.SubjectRegion, PageNames.TermPage, navigationParameters);
+            }
+        }
+
         private void OpenCourse(Course course)
         {
             if (course != null)
             {
-                CourseTitle = course.Title;
+                PageTitle = course.Title;
 
                 var navigationParameters = new NavigationParameters();
                 navigationParameters.Add("project", course.Project);
@@ -116,61 +118,6 @@ namespace ProjectTracker.WPF.ViewModels
                 regionManager.RequestNavigate(RegionNames.SubjectRegion, PageNames.ProjectPage, navigationParameters);
 
                 SelectedCourse = null;
-            }
-        }
-        private void AddCourse(TermListViewItem termListViewItem)
-        {
-            var dialogViewModel = new CourseDialogViewModel();
-            if (dialogViewModel.ShowDialog() == true)
-            {
-                var course = courseService.CreateCourse(termListViewItem.Term.Id, dialogViewModel.CourseTitle, dialogViewModel.Credit);
-
-                termListViewItem.AddCourse(course);
-            }
-        }
-        private async void EditCourse(Course course)
-        {
-            var dialogViewModel = new CourseDialogViewModel(course.Title, course.Credit);
-            if (dialogViewModel.ShowDialog() == true)
-            {
-                course.Title = dialogViewModel.CourseTitle;
-                course.Credit = dialogViewModel.Credit;
-
-                await courseService.UpdateCourseAsync(course);
-            }
-
-            SelectedCourse = null;
-        }
-        private async void DeleteCourse(Course course)
-        {
-            var result = MessageBox.Show($"Are you sure you want to delete {course.Title}?", "Delete course", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.OK)
-            {
-                var termListViewItem = TermsListViewItems.Where(p => p.Courses.Contains(course)).First();
-
-                termListViewItem.RemoveCourse(course);
-
-                await courseService.DeleteCourseAsync(course);
-            }
-
-            SelectedCourse = null;
-        }
-
-        private void ImportLessonsAsTodosFromExcel(TermListViewItem termListViewItem)
-        {
-            var commonOpenFileDialog = new CommonOpenFileDialog();
-
-            if (commonOpenFileDialog.ShowDialog() != CommonFileDialogResult.Ok)
-                return;
-
-            try
-            {
-                termService.ImportLessonsAsTodosFromExcel(commonOpenFileDialog.FileName, termListViewItem.Term);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show($"{e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 

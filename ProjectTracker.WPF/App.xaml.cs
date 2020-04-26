@@ -25,8 +25,11 @@ namespace ProjectTracker.WPF
             containerRegistry.RegisterForNavigation<StartPage, StartPageViewModel>();
             containerRegistry.RegisterForNavigation<ProjectPage, ProjectPageViewModel>();
             containerRegistry.RegisterForNavigation<BMEPage, BMEPageViewModel>();
+            containerRegistry.RegisterForNavigation<TermPage, TermPageViewModel>();
 
             containerRegistry.RegisterSingleton<IProjectService, ProjectService>();
+            containerRegistry.RegisterSingleton<IDeadlineService, DeadlineService>();
+            containerRegistry.RegisterSingleton<IEventService, EventService>();
             containerRegistry.RegisterSingleton<ITodoService, TodoService>();
             containerRegistry.RegisterSingleton<IPathService, PathService>();
             containerRegistry.RegisterSingleton<ITermService, TermService>();

@@ -13,12 +13,16 @@ namespace ProjectTracker.BLL.Services.Implementations
     public class ProjectService : IProjectService, IModelEntityMapper<Project, ProjectEntity>
     {
         private IProjectEntityService projectEntityService;
+        private IDeadlineService deadlineService;
+        private IEventService eventService;
         private ITodoService todoService;
         private IPathService pathService;
 
         public ProjectService()
         {
             projectEntityService = UnityBootstrapper.Instance.Resolve<IProjectEntityService>();
+            deadlineService = UnityBootstrapper.Instance.Resolve<IDeadlineService>();
+            eventService = UnityBootstrapper.Instance.Resolve<IEventService>();
             todoService = UnityBootstrapper.Instance.Resolve<ITodoService>();
             pathService = UnityBootstrapper.Instance.Resolve<IPathService>();
         }
@@ -32,9 +36,11 @@ namespace ProjectTracker.BLL.Services.Implementations
             {
                 var project = ConvertToModel(item);
 
+                GetDeadlines(project);
+                GetEvents(project);
                 GetTodos(project);
                 GetPaths(project);
-                
+
                 projects.Add(project);
             }
 
@@ -45,10 +51,22 @@ namespace ProjectTracker.BLL.Services.Implementations
             var projectEntity = projectEntityService.GetProjectByCourseId(courseId);
             var project = ConvertToModel(projectEntity);
 
+            GetDeadlines(project);
+            GetEvents(project);
             GetTodos(project);
             GetPaths(project);
 
             return project;
+        }
+        private void GetDeadlines(Project project)
+        {
+            var deadlines = deadlineService.GetDeadlinesByProjectId(project.Id);
+            project.AddDeadlineRange(deadlines);
+        }
+        private void GetEvents(Project project)
+        {
+            var events = eventService.GetEventsByProjectId(project.Id);
+            project.AddEventRange(events);
         }
         private void GetTodos(Project project)
         {
@@ -78,7 +96,7 @@ namespace ProjectTracker.BLL.Services.Implementations
             projectEntity.CourseID = courseId;
 
             project.Id = projectEntityService.AddProject(projectEntity);
-            
+
             return project;
         }
 
@@ -96,7 +114,6 @@ namespace ProjectTracker.BLL.Services.Implementations
         public void DeleteProject(Project projectToDelete)
         {
             todoService.DeleteTodosByProjectId(projectToDelete.Id);
-            pathService.DeletePathsByProjectId(projectToDelete.Id);
 
             var projectEntity = ConvertToEntity(projectToDelete);
             projectEntityService.DeleteProject(projectEntity);
@@ -105,7 +122,7 @@ namespace ProjectTracker.BLL.Services.Implementations
         {
             await Task.Run(() => DeleteProject(projectToDelete));
         }
-        
+
 
         public Project ConvertToModel(ProjectEntity entity)
         {

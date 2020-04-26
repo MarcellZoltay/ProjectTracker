@@ -10,6 +10,6 @@ namespace ProjectTracker.BLL.Services.Interfaces
     public interface ITermService
     {
         List<Term> GetTerms();
-        void ImportLessonsAsTodosFromExcel(string path, Term term);
+        void ImportLessonsAsEventsFromExcel(string path, Term term);
     }
 }

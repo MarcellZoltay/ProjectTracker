@@ -21,11 +21,11 @@ namespace ProjectTracker.DAL.Entities
         public bool IsDone { get; set; }
         public DateTime? Deadline { get; set; }
 
-        [ForeignKey("Project")]
+        [ForeignKey(nameof(Project))]
         public int? ProjectID { get; set; }
         public virtual ProjectEntity Project { get; set; }
 
-        [ForeignKey("ParentTodo")]
+        [ForeignKey(nameof(ParentTodo))]
         public int? ParentTodoID { get; set; }
         public virtual TodoEntity ParentTodo { get; set; }
 

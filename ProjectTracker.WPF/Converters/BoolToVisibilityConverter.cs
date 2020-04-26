@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
-namespace StatisticMaker.WPF.Converters
+namespace ProjectTracker.WPF.Converters
 {
     public class BoolToVisibilityConverter : IValueConverter
     {
@@ -15,6 +15,7 @@ namespace StatisticMaker.WPF.Converters
         {
             return (value is bool && (bool)value) ? Visibility.Visible : Visibility.Collapsed;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo language)
         {
             return value is Visibility && (Visibility)value == Visibility.Visible;

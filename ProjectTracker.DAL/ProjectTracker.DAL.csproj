@@ -70,6 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\CourseEntity.cs" />
+    <Compile Include="Entities\DeadlineEntity.cs" />
+    <Compile Include="Entities\EventEntity.cs" />
     <Compile Include="Entities\PathEntity.cs" />
     <Compile Include="Entities\PathType.cs" />
     <Compile Include="Entities\ProjectEntity.cs" />
@@ -91,16 +93,24 @@
     <Compile Include="Migrations\202001150900003_TermAndCourseAdded.designer.cs">
       <DependentUpon>202001150900003_TermAndCourseAdded.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202004252126559_DeadlineAndEventAdded.cs" />
+    <Compile Include="Migrations\202004252126559_DeadlineAndEventAdded.designer.cs">
+      <DependentUpon>202004252126559_DeadlineAndEventAdded.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ProjectTrackerContext.cs" />
     <Compile Include="ProjectTrackerDBInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Implementations\CourseEntityService.cs" />
+    <Compile Include="Services\Implementations\DeadlineEntityService.cs" />
+    <Compile Include="Services\Implementations\EventEntityService.cs" />
     <Compile Include="Services\Implementations\PathEntityService.cs" />
     <Compile Include="Services\Implementations\ProjectEntityService.cs" />
     <Compile Include="Services\Implementations\TermEntityService.cs" />
     <Compile Include="Services\Implementations\TodoEntityService.cs" />
     <Compile Include="Services\Interfaces\ICourseEntityService.cs" />
+    <Compile Include="Services\Interfaces\IDeadlineEntityService.cs" />
+    <Compile Include="Services\Interfaces\IEventEntityService.cs" />
     <Compile Include="Services\Interfaces\IPathEntityService.cs" />
     <Compile Include="Services\Interfaces\IProjectEntityService.cs" />
     <Compile Include="Services\Interfaces\ITermEntityService.cs" />
@@ -118,6 +128,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202001150900003_TermAndCourseAdded.resx">
       <DependentUpon>202001150900003_TermAndCourseAdded.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202004252126559_DeadlineAndEventAdded.resx">
+      <DependentUpon>202004252126559_DeadlineAndEventAdded.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

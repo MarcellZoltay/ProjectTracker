@@ -179,7 +179,7 @@ namespace ProjectTracker.WPF.Views.Calendar
                     if (day == 1)
                         actualDate = actualDate.AddMonths(1);
 
-                    var currentEvents = ItemsSource?.Where(e => e.StartDate.Year == actualDate.Year && e.StartDate.Month == actualDate.Month && e.StartDate.Day == day).Select(e => e);
+                    var currentEvents = ItemsSource?.Where(e => e.StartTime.Year == actualDate.Year && e.StartTime.Month == actualDate.Month && e.StartTime.Day == day).Select(e => e);
 
                     if (currentEvents != null)
                     {
