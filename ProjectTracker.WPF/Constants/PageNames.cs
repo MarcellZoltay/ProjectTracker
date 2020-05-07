@@ -11,5 +11,6 @@ namespace ProjectTracker.WPF.Constants
         public const string StartPage = "StartPage";
         public const string ProjectPage = "ProjectPage";
         public const string BMEPage = "BMEPage";
+        public const string TermPage = "TermPage";
     }
 }

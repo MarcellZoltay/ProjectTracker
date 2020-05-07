@@ -19,7 +19,7 @@ namespace ProjectTracker.DAL.Entities
         public int Id { get; set; }
         public string Title { get; set; }
 
-        [ForeignKey("Course")]
+        [ForeignKey(nameof(Course))]
         public int? CourseID { get; set; }
         public virtual CourseEntity Course { get; set; }
 

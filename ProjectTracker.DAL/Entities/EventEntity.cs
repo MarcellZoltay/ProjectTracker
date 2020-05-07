@@ -7,15 +7,14 @@ using System.Threading.Tasks;
 
 namespace ProjectTracker.DAL.Entities
 {
-    [Table("Path")]
-    public class PathEntity
+    [Table("Event")]
+    public class EventEntity
     {
         public int Id { get; set; }
-        public string Address { get; set; }
-
-        [ForeignKey(nameof(PathType))]
-        public int PathTypeID { get; set; }
-        public virtual PathType PathType { get; set; }
+        public string Text { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public bool WasPresent { get; set; }
 
         [ForeignKey(nameof(Project))]
         public int ProjectID { get; set; }

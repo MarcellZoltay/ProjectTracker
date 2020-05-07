@@ -2,13 +2,23 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:converter="clr-namespace:StatisticMaker.WPF.Converters"
+             xmlns:converter="clr-namespace:ProjectTracker.WPF.Converters"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" 
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converter:DeadlineRemainingTimeConverter x:Key="DeadlineRemainingTimeConverter" />
+        <converter:DeadlineRemainingTimeStyleConverter x:Key="DeadlineRemainingTimeStyleConverter" />
+        <converter:EventRemainingTimeConverter x:Key="EventRemainingTimeConverter" />
+        <converter:EventRemainingTimeStyleConverter x:Key="EventRemainingTimeStyleConverter" />
+        <Image x:Key="addIconDeadlines" Source="../Icons/add-icon.png" />
+        <Image x:Key="addIconDeadlines_2" Source="../Icons/add-icon.png" />
+        <Image x:Key="addIconEvents" Source="../Icons/add-icon.png" />
+        <Image x:Key="addIconEvents_2" Source="../Icons/add-icon.png" />
+        <Image x:Key="addIconTodos" Source="../Icons/add-icon.png" />
+        <Image x:Key="addIconTodos_2" Source="../Icons/add-icon.png" />
         <Image x:Key="openFolderIconLinks" Source="../Icons/open-folder-icon.png" />
         <Image x:Key="addIconLinks" Source="../Icons/add-icon.png" />
         <Image x:Key="openFolderIconFiles" Source="../Icons/open-folder-icon.png" />
@@ -17,16 +27,34 @@
         <Image x:Key="addIconFolders" Source="../Icons/add-icon.png" />
         <Image x:Key="openFolderIconApps" Source="../Icons/open-folder-icon.png" />
         <Image x:Key="addIconApps" Source="../Icons/add-icon.png" />
-        <Image x:Key="addIconTodos" Source="../Icons/add-icon.png" />
-        <Image x:Key="addIconTodos2" Source="../Icons/add-icon.png" />
+
+        <CollectionViewSource x:Key="SortedDeadlines" Source="{Binding Deadlines}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Time" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="SortedEvents" Source="{Binding Events}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="StartTime" />
+                <scm:SortDescription PropertyName="EndTime" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
 
     <Grid Background="Transparent"
           MouseDown="MainGrid_MouseDown">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
 
         <Grid.Resources>
             <Style x:Key="labelTitle" TargetType="Label">
@@ -36,9 +64,316 @@
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="FontSize" Value="20"/>
             </Style>
+            <Style TargetType="ListView">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto"
+                                          CanContentScroll="True">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </Grid.Resources>
 
-        <Border Margin="20 20 10 20"
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                Margin="20 10 10 10"
+                Style="{StaticResource defaultBorder}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" MinHeight="40" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Label Content="Deadlines"
+                       Style="{StaticResource labelTitle}"/>
+                <Button Content="{StaticResource addIconDeadlines}"
+                        HorizontalAlignment="Right"
+                        Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                        Style="{StaticResource btnAdd}"
+                        Command="{Binding AddDeadlineCommand}"/>
+
+                <Border Grid.Row="1"
+                        Style="{StaticResource titleBorder}">
+                    <ListView x:Name="lvDeadlines"
+                              ItemsSource="{Binding Source={StaticResource SortedDeadlines}}"
+                              BorderThickness="0" Background="Transparent">
+
+                        <ListView.InputBindings>
+                            <KeyBinding Key="Delete" Command="{Binding DeleteDeadlineCommand}" CommandParameter="{Binding ElementName=lvDeadlines, Path=SelectedItem}"/>
+                        </ListView.InputBindings>
+
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Add deadline"
+                                          Command="{Binding AddDeadlineCommand}"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+
+                        <ListView.Resources>
+                            <ContextMenu x:Key="ItemContextMenu">
+                                <MenuItem Header="Edit"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.EditDeadlineCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                <Separator/>
+                                <MenuItem Header="Delete"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeleteDeadlineCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                            </ContextMenu>
+
+                            <Style TargetType="{x:Type TextBlock}" x:Key="deadlineCompletedStyle">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                        <Setter Property="Foreground">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="Green"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Time, Converter={StaticResource DeadlineRemainingTimeStyleConverter}}" Value="0"/>
+                                            <Condition Binding="{Binding IsCompleted}" Value="False"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                            <Style TargetType="{x:Type Run}" x:Key="deadlineRemainingTimeStyle">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Time, Converter={StaticResource DeadlineRemainingTimeStyleConverter}}" Value="3">
+                                        <Setter Property="Foreground">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="Red"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Time, Converter={StaticResource DeadlineRemainingTimeStyleConverter}}" Value="7">
+                                        <Setter Property="Foreground">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="Orange"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.Resources>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding IsCompleted}" 
+                                              VerticalAlignment="Center"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.IsCompletedClickedCommand}" 
+                                              CommandParameter="{Binding}"/>
+                                    <StackPanel Orientation="Vertical"
+                                                Margin="5 2">
+                                        <TextBlock VerticalAlignment="Center">
+                                            <Bold>
+                                                <Run Text="{Binding Time, StringFormat=yyyy.MM.dd. HH:mm}"/>
+                                            </Bold>
+                                            <Run Text="{Binding Time, Converter={StaticResource DeadlineRemainingTimeConverter}}" 
+                                                 Style="{StaticResource deadlineRemainingTimeStyle}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Text}" VerticalAlignment="Center" 
+                                                   Style="{StaticResource deadlineCompletedStyle}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" >
+                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </Border>
+
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding IsDeadlineListEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button Content="{StaticResource addIconDeadlines_2}" FontSize="20" Height="24"
+                            Margin="5" Padding="3"
+                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                            Command="{Binding AddDeadlineCommand}"/>
+                    <Label Content="Add deadline" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <Border Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="3"
+                Margin="10 10 20 10"
+                Style="{StaticResource defaultBorder}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" MinHeight="40" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Label Content="Events"
+                       Style="{StaticResource labelTitle}"/>
+                <Button Content="{StaticResource addIconEvents}"
+                        HorizontalAlignment="Right"
+                        Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                        Style="{StaticResource btnAdd}"
+                        Command="{Binding AddEventCommand}"/>
+
+                <Border Grid.Row="1"
+                        Style="{StaticResource titleBorder}">
+                    <ListView x:Name="lvEvents"
+                              ItemsSource="{Binding Source={StaticResource SortedEvents}}"
+                              BorderThickness="0" Background="Transparent">
+
+                        <ListView.InputBindings>
+                            <KeyBinding Key="Delete" Command="{Binding DeleteEventCommand}" CommandParameter="{Binding ElementName=lvEvents, Path=SelectedItem}"/>
+                        </ListView.InputBindings>
+
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Add event"
+                                          Command="{Binding AddEventCommand}"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+
+                        <ListView.Resources>
+                            <ContextMenu x:Key="ItemContextMenu">
+                                <MenuItem Header="Edit"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.EditEventCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                                <Separator/>
+                                <MenuItem Header="Delete"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.DeleteEventCommand}" 
+                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
+                            </ContextMenu>
+
+                            <Style TargetType="{x:Type TextBlock}" x:Key="eventPresentStyle">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding WasPresent}" Value="True">
+                                        <Setter Property="Foreground">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="Green"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Value="-1">
+                                                <Condition.Binding>
+                                                    <MultiBinding Converter="{StaticResource EventRemainingTimeStyleConverter}">
+                                                        <Binding Path="StartTime" UpdateSourceTrigger="PropertyChanged"/>
+                                                        <Binding Path="EndTime" UpdateSourceTrigger="PropertyChanged"/>
+                                                    </MultiBinding>
+                                                </Condition.Binding>
+                                            </Condition>
+                                            <Condition Binding="{Binding WasPresent}" Value="False"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                            <Style TargetType="{x:Type Run}" x:Key="eventRemainingTimeStyle">
+                                <Style.Triggers>
+                                    <DataTrigger Value="0">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource EventRemainingTimeStyleConverter}">
+                                                <Binding Path="StartTime" UpdateSourceTrigger="PropertyChanged"/>
+                                                <Binding Path="EndTime" UpdateSourceTrigger="PropertyChanged"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <DataTrigger.Setters>
+                                            <Setter Property="Foreground" Value="Blue" />
+                                        </DataTrigger.Setters>
+                                    </DataTrigger>
+                                    <DataTrigger Value="3">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource EventRemainingTimeStyleConverter}">
+                                                <Binding Path="StartTime" UpdateSourceTrigger="PropertyChanged"/>
+                                                <Binding Path="EndTime" UpdateSourceTrigger="PropertyChanged"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <DataTrigger.Setters>
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger.Setters>
+                                    </DataTrigger>
+                                    <DataTrigger Value="7">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource EventRemainingTimeStyleConverter}">
+                                                <Binding Path="StartTime" UpdateSourceTrigger="PropertyChanged"/>
+                                                <Binding Path="EndTime" UpdateSourceTrigger="PropertyChanged"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <DataTrigger.Setters>
+                                            <Setter Property="Foreground" Value="Orange"/>
+                                        </DataTrigger.Setters>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.Resources>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding WasPresent}" 
+                                              VerticalAlignment="Center"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.WasPresentClickedCommand}" 
+                                              CommandParameter="{Binding}"/>
+                                    <StackPanel Orientation="Vertical"
+                                            Margin="5 2">
+                                        <TextBlock VerticalAlignment="Center" >
+                                            <Bold>
+                                                <Run Text="{Binding StartTime, StringFormat=yyyy.MM.dd. HH:mm}"/>
+                                                <Run Text=" - " />
+                                                <Run Text="{Binding EndTime, StringFormat=yyyy.MM.dd. HH:mm}"/>
+                                            </Bold>
+                                            <Run Style="{StaticResource eventRemainingTimeStyle}">
+                                                <Run.Text>
+                                                    <MultiBinding Converter="{StaticResource EventRemainingTimeConverter}">
+                                                        <Binding Path="StartTime" UpdateSourceTrigger="PropertyChanged"/>
+                                                        <Binding Path="EndTime" UpdateSourceTrigger="PropertyChanged"/>
+                                                    </MultiBinding>
+                                                </Run.Text>
+                                            </Run>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Text}" VerticalAlignment="Center"
+                                                   Style="{StaticResource eventPresentStyle}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" >
+                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                    </ListView>
+                </Border>
+
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding IsEventListEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button Content="{StaticResource addIconEvents_2}" FontSize="20" Height="24"
+                            Margin="5" Padding="3"
+                            Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
+                            Command="{Binding AddEventCommand}"/>
+                    <Label Content="Add event" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                Margin="20 10 10 20"
                 Style="{StaticResource defaultBorder}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -161,7 +496,7 @@
                             Orientation="Horizontal"
                             HorizontalAlignment="Center" VerticalAlignment="Center"
                             Visibility="{Binding IsTodoTreeViewEmtpy, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Button Content="{StaticResource addIconTodos2}" FontSize="20" Height="24"
+                    <Button Content="{StaticResource addIconTodos_2}" FontSize="20" Height="24"
                             Margin="5" Padding="3"
                             Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
                             Command="{Binding AddTodoCommand}"/>
@@ -170,11 +505,11 @@
             </Grid>
         </Border>
 
-        <DockPanel Grid.Column="1">
+        <DockPanel Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4">
             <Grid DockPanel.Dock="Bottom">
                 <CheckBox x:Name="cbSelectAll" Content="Select all"
                           HorizontalAlignment="Left" VerticalAlignment="Center"
-                          Margin="26 0 0 20"
+                          Margin="22 0 0 20"
                           IsChecked="{Binding AllSelected}">
 
                     <i:Interaction.Triggers>
@@ -193,11 +528,12 @@
             </Grid>
 
             <Grid>
-                <Border Margin="10 20 20 10"
+                <Border Margin="10 10 20 10"
                         Style="{StaticResource defaultBorder}">
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Auto">
+                                  HorizontalScrollBarVisibility="Auto"
+                                  CanContentScroll="True">
                         <StackPanel>
                             <StackPanel.Resources>
                                 <Style TargetType="Border">
@@ -363,7 +699,7 @@
                             <ListView x:Name="lvApps"
                                       ItemsSource="{Binding ApplicationPaths}"
                                       ItemTemplate="{StaticResource pathsTemplate}"
-                                  KeyDown="LvApps_KeyDown">
+                                      KeyDown="LvApps_KeyDown">
 
                                 <ListView.Resources>
                                     <ContextMenu x:Key="ItemContextMenu">
@@ -383,7 +719,7 @@
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseDoubleClick">
                                         <i:InvokeCommandAction Command="{Binding OpenPathCommand}"
-                                                           CommandParameter="{Binding ElementName=lvApps, Path=SelectedItem}"/>
+                                                               CommandParameter="{Binding ElementName=lvApps, Path=SelectedItem}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </ListView>

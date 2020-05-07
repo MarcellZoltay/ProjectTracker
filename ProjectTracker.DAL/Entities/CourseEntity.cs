@@ -15,7 +15,7 @@ namespace ProjectTracker.DAL.Entities
         public int Credit { get; set; }
         public bool IsFulfilled { get; set; }
 
-        [ForeignKey("Term")]
+        [ForeignKey(nameof(Term))]
         public int TermID { get; set; }
         public virtual TermEntity Term { get; set; }
     }

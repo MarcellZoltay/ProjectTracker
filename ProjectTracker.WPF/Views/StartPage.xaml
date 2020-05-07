@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:calendar="clr-namespace:ProjectTracker.WPF.Views.Calendar"
-             xmlns:converter="clr-namespace:StatisticMaker.WPF.Converters"
+             xmlns:converter="clr-namespace:ProjectTracker.WPF.Converters"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              prism:ViewModelLocator.AutoWireViewModel="True"

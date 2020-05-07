@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"            
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:converter="clr-namespace:StatisticMaker.WPF.Converters"
+             xmlns:converter="clr-namespace:ProjectTracker.WPF.Converters"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
@@ -15,163 +15,16 @@
                 <scm:SortDescription PropertyName="Term.Title"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
-
-        <Style x:Key="labelTitle" TargetType="Label">
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5 0"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="20"/>
-        </Style>
     </UserControl.Resources>
 
-    <!--<ScrollViewer Grid.Row="1">
-            <ItemsControl x:Name="icTerms"
-                          ItemsSource="{Binding TermsListViewItems}"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel IsItemsHost="True"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource defaultBorder}"
-                                Margin="10">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="40" MinHeight="40" />
-                                    <RowDefinition Height="*"  MinHeight="300" />
-                                    <RowDefinition Height="30" MinHeight="30" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" MinWidth="400" />
-                                </Grid.ColumnDefinitions>
-
-                                <Label Content="{Binding Term.Title}"
-                                       Style="{StaticResource labelTitle}"/>
-                                <Button HorizontalAlignment="Right"
-                                        Width="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=ActualHeight}"
-                                        Style="{StaticResource btnAdd}"
-                                        Command="{Binding ElementName=icTerms, Path=DataContext.AddCourseCommand}"
-                                        CommandParameter="{Binding}">
-                                    <Image Source="../Icons/add-icon.png"/>
-                                </Button>
-                                <Button Content="Import lessons" 
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Center"
-                                        Style="{StaticResource btnBase}"
-                                        Margin="0 0 40 0"
-                                        Command="{Binding ElementName=icTerms, Path=DataContext.ImportLessonsAsTodosFromExcelCommand}"
-                                        CommandParameter="{Binding}"/>
-
-                                <Border Grid.Row="1" 
-                                        Style="{StaticResource titleBorder}">
-                                    <ListView x:Name="lvCourses"
-                                              ItemsSource="{Binding Courses}"
-                                              SelectedItem="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.SelectedCourse}">
-
-                                        <ListView.InputBindings>
-                                            <KeyBinding Key="Delete" 
-                                                        Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCourseCommand}" 
-                                                        CommandParameter="{Binding ElementName=lvCourses, Path=SelectedItem}"/>
-                                        </ListView.InputBindings>
-                                        
-                                        <ListView.Resources>
-                                            <ContextMenu x:Key="ItemContextMenu">
-                                                <MenuItem Header="Open"
-                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.OpenCourseCommand}" 
-                                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                                <MenuItem Header="Edit"
-                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.EditCourseCommand}" 
-                                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                                <Separator/>
-                                                <MenuItem Header="Delete"
-                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCourseCommand}" 
-                                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                            </ContextMenu>
-
-                                            <Style TargetType="{x:Type TextBlock}" x:Key="courseProgressStyle">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsFulfilled}" Value="true">
-                                                        <Setter Property="Foreground">
-                                                            <Setter.Value>
-                                                                <SolidColorBrush Color="Green"/>
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ListView.Resources>
-
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="{x:Type ListViewItem}" >
-                                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                                <Setter Property="Padding" Value="0 3"/>
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate>
-                                                <DockPanel>
-                                                    <CheckBox DockPanel.Dock="Left" 
-                                                              IsChecked="{Binding IsFulfilled}" 
-                                                              VerticalAlignment="Center"
-                                                              Margin="5 0"/>
-                                                    <TextBlock DockPanel.Dock="Right"
-                                                               Margin="10 0"
-                                                               VerticalAlignment="Center">
-                                                        <Run Text="{Binding Credit}" />
-                                                        <Run Text="cr." />
-                                                    </TextBlock>
-                                                    <TextBlock Text="{Binding Title}"
-                                                               VerticalAlignment="Center"
-                                                               Style="{StaticResource courseProgressStyle}"
-                                                               TextWrapping="Wrap"/>
-                                                </DockPanel>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="MouseDoubleClick">
-                                                <i:InvokeCommandAction Command="{Binding ElementName=icTerms, Path=DataContext.OpenCourseCommand}"
-                                                                       CommandParameter="{Binding ElementName=lvCourses, Path=SelectedItem}"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </ListView>
-                                </Border>
-
-                                <Border Grid.Row="2"
-                                        BorderBrush="Black" BorderThickness="0 1 0 0">
-                                    <TextBlock HorizontalAlignment="Right"
-                                               VerticalAlignment="Center"
-                                               Margin="10 0">
-                                        <Run Text="Total: "/>
-                                        <Bold>
-                                            <Run Text="{Binding Term.TotalFulfilledCredit}"/>
-                                            <Run Text="/"/>
-                                            <Run Text="{Binding Term.TotalCredit}"/>
-                                        </Bold>
-                                        <Run Text="cr."/>
-                                    </TextBlock>
-                                </Border>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>-->
-
-     <DockPanel>
+    <DockPanel>
         <Border DockPanel.Dock="Left"
                     BorderBrush="Black" BorderThickness="0 0 1 0">
                 <Grid>
                     <ScrollViewer Width="330"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto">
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  CanContentScroll="True">
                         <ListView x:Name="lvTerms"
                                   ItemsSource="{Binding Source={StaticResource cvsTerms}}">
                             <ListView.ItemContainerStyle>
@@ -179,41 +32,33 @@
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                                
                                                 <Expander x:Name="expTerms" IsExpanded="True" Margin="0 1.5">
                                                     <Expander.Resources>
                                                         <CollectionViewSource x:Key="cvsCourses" Source="{Binding Courses}" />
                                                     </Expander.Resources>
 
                                                     <Expander.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock FontWeight="SemiBold" Text="{Binding Path=Term.Title}" Margin="5 0 0 0"/>
-                                                        </StackPanel>
+                                                        <Grid HorizontalAlignment="Stretch">
+                                                            <Button Content="{Binding Path=Term.Title}"
+                                                                    Margin="3 0 0 0" FontWeight="SemiBold"
+                                                                    HorizontalAlignment="{Binding HorizontalAlignment, RelativeSource={RelativeSource AncestorType=ContentPresenter}, Mode=OneWayToSource}"
+                                                                    HorizontalContentAlignment="Left"
+                                                                    Background="Transparent" BorderThickness="0">
+
+                                                            <i:Interaction.Triggers>
+                                                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                                                        <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.OpenTermCommand}"
+                                                                                               CommandParameter="{Binding}"/>
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                            </Button>
+                                                        </Grid>
                                                     </Expander.Header>
                                                     <Expander.Content>
                                                         <ListView x:Name="lvCourses"
                                                                   ItemsSource="{Binding Source={StaticResource cvsCourses}}"
                                                                   SelectedItem="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.SelectedCourse}">
-
-                                                            <ListView.Resources>
-                                                                <ContextMenu x:Key="ItemContextMenu">
-                                                                    <MenuItem Header="Open"
-                                                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.OpenCourseCommand}" 
-                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                                                    <MenuItem Header="Edit"
-                                                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.EditCourseCommand}" 
-                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                                                    <Separator/>
-                                                                    <MenuItem Header="Delete"
-                                                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCourseCommand}" 
-                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=SelectedItem}"/>
-                                                                </ContextMenu>
-                                                            </ListView.Resources>
-
-                                                            <ListView.ItemContainerStyle>
-                                                                <Style TargetType="{x:Type ListViewItem}" >
-                                                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
-                                                                </Style>
-                                                            </ListView.ItemContainerStyle>
 
                                                             <ListView.ItemTemplate>
                                                                 <DataTemplate>
@@ -245,13 +90,11 @@
 
         <DockPanel>
             <Label DockPanel.Dock="Top" 
-                   Content="{Binding CourseTitle}" 
+                   Content="{Binding PageTitle}" 
                    FontSize="20" FontWeight="SemiBold"
                    VerticalAlignment="Center"
                    Margin="15 5 0 0"/>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ContentControl prism:RegionManager.RegionName="SubjectRegion" />
-            </ScrollViewer>
+            <ContentControl prism:RegionManager.RegionName="SubjectRegion" />
         </DockPanel>
     </DockPanel>
         

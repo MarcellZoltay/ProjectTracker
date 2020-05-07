@@ -41,7 +41,7 @@ namespace ProjectTracker.BLL.Services.Implementations
             return terms;
         }
 
-        public void ImportLessonsAsTodosFromExcel(string path, Term term)
+        public void ImportLessonsAsEventsFromExcel(string path, Term term)
         {
             var rows = excelService.ReadExcelFile(path);
 
@@ -52,8 +52,12 @@ namespace ProjectTracker.BLL.Services.Implementations
                 var row = rows[i];
 
                 string[] start = row.ElementAt(0).Split('.', ':');
-                DateTime startDate = new DateTime(int.Parse(start[0]), int.Parse(start[1]), int.Parse(start[2]),
+                DateTime startTime = new DateTime(int.Parse(start[0]), int.Parse(start[1]), int.Parse(start[2]),
                                                   int.Parse(start[3].Trim()), int.Parse(start[4]), int.Parse(start[5]));
+
+                string[] end = row.ElementAt(1).Split('.', ':');
+                DateTime endTime = new DateTime(int.Parse(end[0]), int.Parse(end[1]), int.Parse(end[2]),
+                                                  int.Parse(end[3].Trim()), int.Parse(end[4]), int.Parse(end[5]));
 
                 string[] summary = row.ElementAt(2).Split('(', ')');
                 string subjectTitle = summary[0].Trim();
@@ -63,7 +67,7 @@ namespace ProjectTracker.BLL.Services.Implementations
 
                 var course = courses.Where(c => subjectTitle.Contains(c.Title)).FirstOrDefault();
                 if (course != null)
-                    courseService.ImportLessonTodo(course, startDate, lessonType, venue);
+                    courseService.ImportLessonEvent(course, startTime, endTime, lessonType, venue);
             }
         }
 

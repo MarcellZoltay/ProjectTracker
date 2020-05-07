@@ -18,7 +18,7 @@ namespace ProjectTracker.BLL.Models
             {
                 SetProperty(ref title, value);
 
-                if(Project != null)
+                if (Project != null)
                     Project.Title = value;
             }
         }
@@ -39,7 +39,7 @@ namespace ProjectTracker.BLL.Models
 
         public Project Project { get; set; }
 
-        public List<Todo> Todos => Project.Todos;
+        public List<Event> Events => Project.Events;
 
         public Course(string title)
         {

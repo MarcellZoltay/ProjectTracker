@@ -33,12 +33,16 @@ namespace ProjectTracker.BLL
         private void ConfigureDependencies()
         {
             container.RegisterType<IProjectEntityService, ProjectEntityService>();
+            container.RegisterType<IDeadlineEntityService, DeadlineEntityService>();
+            container.RegisterType<IEventEntityService, EventEntityService>();
             container.RegisterType<ITodoEntityService, TodoEntityService>();
             container.RegisterType<IPathEntityService, PathEntityService>();
             container.RegisterType<ITermEntityService, TermEntityService>();
             container.RegisterType<ICourseEntityService, CourseEntityService>();
 
             container.RegisterType<IProjectService, ProjectService>();
+            container.RegisterType<IDeadlineService, DeadlineService>();
+            container.RegisterType<IEventService, EventService>();
             container.RegisterType<ITodoService, TodoService>();
             container.RegisterType<IPathService, PathService>();
             container.RegisterType<ICourseService, CourseService>();
