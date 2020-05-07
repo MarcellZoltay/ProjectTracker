@@ -18,6 +18,7 @@ namespace ProjectTracker.WPF.ViewModels
         public DelegateCommand AddCourseCommand { get; }
         public DelegateCommand<Course> EditCourseCommand { get; }
         public DelegateCommand<Course> DeleteCourseCommand { get; }
+        public DelegateCommand<Course> IsFulfilledClickedCommand { get; set; }
         public DelegateCommand ImportLessonsAsTodosFromExcelCommand { get; }
 
         private ITermService termService;
@@ -43,6 +44,7 @@ namespace ProjectTracker.WPF.ViewModels
             AddCourseCommand = new DelegateCommand(AddCourse);
             EditCourseCommand = new DelegateCommand<Course>(EditCourse);
             DeleteCourseCommand = new DelegateCommand<Course>(DeleteCourse);
+            IsFulfilledClickedCommand = new DelegateCommand<Course>(IsFulfilledClicked);
             ImportLessonsAsTodosFromExcelCommand = new DelegateCommand(ImportLessonsAsTodosFromExcel);
 
             this.termService = termService;
@@ -84,6 +86,10 @@ namespace ProjectTracker.WPF.ViewModels
             }
 
             SelectedCourse = null;
+        }
+        private async void IsFulfilledClicked(Course course)
+        {
+            await courseService.UpdateCourseAsync(course);
         }
 
         private void ImportLessonsAsTodosFromExcel()

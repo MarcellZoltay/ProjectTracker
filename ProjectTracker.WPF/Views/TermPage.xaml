@@ -96,19 +96,21 @@
                         <DataTemplate>
                             <DockPanel>
                                 <CheckBox DockPanel.Dock="Left" 
-                                              IsChecked="{Binding IsFulfilled}" 
-                                              VerticalAlignment="Center"
-                                              Margin="5 0"/>
+                                          IsChecked="{Binding IsFulfilled}" 
+                                          VerticalAlignment="Center"
+                                          Margin="5 0"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListView}, Path=DataContext.IsFulfilledClickedCommand}" 
+                                          CommandParameter="{Binding}"/>
                                 <TextBlock DockPanel.Dock="Right"
-                                               Margin="10 0"
-                                               VerticalAlignment="Center">
+                                           Margin="10 0"
+                                           VerticalAlignment="Center">
                                         <Run Text="{Binding Credit}" />
                                         <Run Text="cr." />
                                 </TextBlock>
                                 <TextBlock Text="{Binding Title}"
-                                               VerticalAlignment="Center"
-                                               Style="{StaticResource courseProgressStyle}"
-                                               TextWrapping="Wrap"/>
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource courseProgressStyle}"
+                                           TextWrapping="Wrap"/>
                             </DockPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
