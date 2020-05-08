@@ -46,6 +46,9 @@ namespace ProjectTracker.BLL.Models
 
             TotalCredit += course.Credit;
 
+            if (course.IsFulfilled)
+                TotalFulfilledCredit += course.Credit;
+
             course.PropertyChanged += Course_PropertyChanged;
         }
         public void AddCourseRange(IEnumerable<Course> courses)
@@ -66,7 +69,7 @@ namespace ProjectTracker.BLL.Models
 
             course.PropertyChanged -= Course_PropertyChanged;
         }
-        
+
         private void Course_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsFulfilled")
@@ -78,7 +81,7 @@ namespace ProjectTracker.BLL.Models
                 else
                     TotalFulfilledCredit -= course.Credit;
             }
-            else if(e.PropertyName == "Credit")
+            else if (e.PropertyName == "Credit")
             {
                 TotalCredit = 0;
                 TotalFulfilledCredit = 0;
