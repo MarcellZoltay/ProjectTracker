@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="ProjectTracker.WPF.Views.TermPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:prism="http://prismlibrary.com/"
+             xmlns:prism="http://prismlibrary.com/" xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
@@ -12,6 +12,12 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="20"/>
         </Style>
+
+        <CollectionViewSource x:Key="cvsCourses" Source="{Binding TermListViewItem.Courses}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Title"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </UserControl.Resources>
 
     <Grid>
@@ -50,7 +56,7 @@
                 </Grid.ColumnDefinitions>
 
                 <ListView x:Name="lvCourses"
-                          ItemsSource="{Binding TermListViewItem.Courses}"
+                          ItemsSource="{Binding Source={StaticResource cvsCourses}}"
                           SelectedItem="{Binding SelectedCourse}"
                           Padding="0 3">
 

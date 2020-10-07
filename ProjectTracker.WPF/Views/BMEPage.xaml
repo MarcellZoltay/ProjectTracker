@@ -35,7 +35,11 @@
                                                 
                                                 <Expander x:Name="expTerms" IsExpanded="True" Margin="0 1.5">
                                                     <Expander.Resources>
-                                                        <CollectionViewSource x:Key="cvsCourses" Source="{Binding Courses}" />
+                                                        <CollectionViewSource x:Key="cvsCourses" Source="{Binding Courses}">
+                                                            <CollectionViewSource.SortDescriptions>
+                                                                <scm:SortDescription PropertyName="Title"/>
+                                                            </CollectionViewSource.SortDescriptions>
+                                                        </CollectionViewSource>
                                                     </Expander.Resources>
 
                                                     <Expander.Header>
